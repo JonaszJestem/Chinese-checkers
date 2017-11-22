@@ -1,7 +1,6 @@
 import org.junit.jupiter.api.Test;
 
 import static java.lang.Thread.sleep;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 class ServerTest {
@@ -23,11 +22,10 @@ class ServerTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        assertEquals(s.getConnectedUsers(), 2);
     }
 
     private void setUpServer() {
-        s = new Server(8000);
+        s = new Server();
         st = new Thread(s);
         st.start();
     }

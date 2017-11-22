@@ -1,6 +1,6 @@
 import java.io.IOException;
 
-public class ClientThread implements Runnable {
+class ClientThread implements Runnable {
     private Client client;
 
     public void run() {

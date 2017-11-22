@@ -1,16 +1,23 @@
+import com.google.gson.JsonObject;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Server implements Runnable {
+class Server implements Runnable {
 
-    private int PORT;
+    private final int PORT = 8000;
     private ServerSocket serverSocket;
     private Socket socket;
-    private int usersCounter = 0;
 
-    Server(int port) {
-        this.PORT = port;
+    private List<Game> games = new ArrayList<>();
+
+    public static void main(String[] args) {
+        Server s = new Server();
+        Thread st = new Thread(s);
+        st.start();
     }
 
     public void run() {
@@ -18,7 +25,6 @@ public class Server implements Runnable {
             serverSocket = new ServerSocket(PORT);
         } catch (IOException e) {
             e.printStackTrace();
-
         }
         System.out.println("Created server");
 
@@ -26,16 +32,19 @@ public class Server implements Runnable {
             System.out.println("Waiting for client connection");
             try {
                 socket = serverSocket.accept();
-                usersCounter++;
             } catch (IOException e) {
                 System.out.println("I/O error: " + e);
             }
-            // new thread for a client
-            new ServerThread(socket).start();
+            new ServerThread(socket, this).start();
         }
     }
 
-    int getConnectedUsers() {
-        return usersCounter;
+    public synchronized List<Game> getGames() {
+        return games;
+    }
+
+    //TODO: IMPLEMENT MAKING NEW GAME OBJECT FROM JSON
+    public void addGame(JsonObject gameProp) {
+
     }
 }

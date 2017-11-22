@@ -1,5 +1,7 @@
-import javafx.event.ActionEvent;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
@@ -16,17 +18,40 @@ public class GUIController {
     private TextField username;
     @FXML
     private Pane connectionError;
+    @FXML
+    private AnchorPane gamesList;
+    @FXML
+    private ListView<String> gameList = new ListView<>();
+
+
+    private ObservableList<String> games = FXCollections.observableArrayList();
 
     @FXML
-    protected void handleLoginButton(ActionEvent event) {
+    protected void handleLoginButton() {
         client = new Client();
         loginScreen.setVisible(false);
         client.setUserName(username.getText());
-        System.out.println(client.getUserName());
+        gameList.setItems(games);
         try {
             client.connect();
+            handleGettingGames();
+            gamesList.setVisible(true);
         } catch (IOException e) {
             connectionError.setVisible(true);
         }
+    }
+
+    @FXML
+    protected void handleGettingGames() {
+        games.clear();
+
+        for (Game g : client.getGamesFromServer()) {
+            games.add(g.getName());
+        }
+    }
+
+    //TODO: Implement making new game properties (JSON) and send to server and refresh games
+    private void handleNewGame() {
+
     }
 }

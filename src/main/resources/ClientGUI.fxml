@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
@@ -28,6 +27,19 @@
                       wrappingWidth="172.13671875"/>
                 <Button layoutX="70.0" layoutY="55.0" mnemonicParsing="false" onAction="#handleLoginButton" text="OK"
                         textAlignment="CENTER"/>
+            </children>
+        </AnchorPane>
+        <AnchorPane fx:id="gamesList" prefHeight="400.0" prefWidth="600.0" visible="false">
+            <children>
+                <ListView layoutX="76.0" layoutY="100.0" prefHeight="200.0" prefWidth="200.0"/>
+                <Text fx:id="list" layoutX="76.0" layoutY="83.0" strokeType="OUTSIDE" strokeWidth="0.0"
+                      text="Games list:" wrappingWidth="200.00000596046448"/>
+                <Button fx:id="join" layoutX="300.0" layoutY="100.0" mnemonicParsing="false" prefHeight="25.0"
+                        prefWidth="120.0" text="Join game"/>
+                <Button fx:id="refresh" layoutX="300.0" layoutY="144.0" mnemonicParsing="false"
+                        onAction="#handleGettingGames" prefHeight="25.0" prefWidth="120.0" text="Refresh"/>
+                <Button fx:id="newGameButton" layoutX="300.0" layoutY="188.0" mnemonicParsing="false" prefHeight="25.0"
+                        prefWidth="120.0" text="New Game"/>
             </children>
         </AnchorPane>
     </children>
