@@ -40,11 +40,11 @@ class ServerThread extends Thread {
 
                     out.writeBytes(games + "\n\r");
                     out.flush();
-                } else if ((line.equalsIgnoreCase("CREATEGAME"))) {
-                    line = reader.readLine();
-                    JsonObject gameProp = new Gson().fromJson(line, new TypeToken<Game>() {
-                    }.getType());
-                    server.addGame(gameProp);
+                } else if ((line.startsWith("CREATEGAME"))) {
+                    String[] game = line.split(" ");
+                    System.out.println(game);
+                    System.out.println(line);
+                    server.addGame(game[1], Integer.parseInt(game[2]));
                 } else {
                     out.writeBytes(line + "\n\r");
                     out.flush();

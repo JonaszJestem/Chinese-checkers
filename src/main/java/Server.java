@@ -43,8 +43,8 @@ class Server implements Runnable {
         return games;
     }
 
-    //TODO: IMPLEMENT MAKING NEW GAME OBJECT FROM JSON
-    public void addGame(JsonObject gameProp) {
-
+    //TODO: IMPLEMENT MAKING NEW GAME
+    public void addGame(String name, int numOfPlayers) {
+        games.add(new Game(name, numOfPlayers));
     }
 }

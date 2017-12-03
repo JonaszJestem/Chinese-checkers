@@ -22,19 +22,30 @@ public class GUIController {
     private AnchorPane gamesList;
     @FXML
     private ListView<String> gameList = new ListView<>();
+    @FXML
+    private ListView<Integer> possiblePlayers = new ListView<>();
+    @FXML
+    private AnchorPane gameCreator;
+    @FXML
+    private TextField nameOfGame;
 
-
-    private ObservableList<String> games = FXCollections.observableArrayList();
+    private ObservableList<Integer> possiblePlayersItems = FXCollections.observableArrayList(2,3,4,6);
 
     @FXML
     protected void handleLoginButton() {
+        //Create new Client
         client = new Client();
-        loginScreen.setVisible(false);
+        gameList.setItems(client.games);
+
+        //Set username and disable name screen
         client.setUserName(username.getText());
-        gameList.setItems(games);
+        loginScreen.setVisible(false);
+
+        //Connect to server and fetch games list from server
         try {
             client.connect();
             handleGettingGames();
+            System.out.println(client.games);
             gamesList.setVisible(true);
         } catch (IOException e) {
             connectionError.setVisible(true);
@@ -43,15 +54,26 @@ public class GUIController {
 
     @FXML
     protected void handleGettingGames() {
-        games.clear();
-
-        for (Game g : client.getGamesFromServer()) {
-            games.add(g.getName());
-        }
+        client.getGamesFromServer();
     }
 
-    //TODO: Implement making new game properties (JSON) and send to server and refresh games
+    @FXML
     private void handleNewGame() {
+        gamesList.setVisible(false);
+        possiblePlayers.setItems(possiblePlayersItems);
+        gameCreator.setVisible(true);
+    }
 
+    @FXML
+    private void handleCreateGameButton() {
+        client.addGame(nameOfGame.getText(), possiblePlayers.getSelectionModel().getSelectedItem());
+        gameCreator.setVisible(false);
+        gamesList.setVisible(true);
+    }
+
+    @FXML
+    private void handleCancelButton() {
+        gameCreator.setVisible(false);
+        gamesList.setVisible(true);
     }
 }

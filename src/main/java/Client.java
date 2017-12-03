@@ -1,5 +1,7 @@
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,8 +18,10 @@ class Client {
     private BufferedReader bufferedReader;
 
     private String userName;
-    private List<Game> games = new ArrayList<>();
-
+    ObservableList<String> games = FXCollections.observableArrayList();
+    ArrayList<Game> newGames = new ArrayList<>();
+    Gson JSONParser = new Gson();
+    String line;
 
     void setUserName(String userName) {
         this.userName = userName;
@@ -30,21 +34,27 @@ class Client {
         printWriter = new PrintWriter(socket.getOutputStream(), true);
     }
 
-    List<Game> getGamesFromServer() {
+    void getGamesFromServer() {
         try {
             bufferedReader.ready();
             printWriter.println("GETGAMES");
-            String games = bufferedReader.readLine();
-
-            ArrayList<Game> newGames = new Gson().fromJson(games, new TypeToken<ArrayList<Game>>() {
-            }.getType());
-            this.games.clear();
-            if (newGames != null) {
-                this.games.addAll(newGames);
+            while ((line = bufferedReader.readLine()) != null) {
+                if(!newGames.isEmpty()) newGames.clear();
+                newGames.addAll(JSONParser.fromJson(line, new TypeToken<ArrayList<Game>>() {}.getType()));
+                this.games.clear();
+                for (Game g : newGames) {
+                    games.add(g.getName());
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return games;
+            } catch(IOException e){
+                e.printStackTrace();
+            }
+    }
+
+    void addGame(String text, int possiblePlayers) {
+        if(text.equalsIgnoreCase("")) text = "newGame";
+        printWriter.println("CREATEGAME " + text.replaceAll("\\s+", "") + " " + possiblePlayers);
+        printWriter.flush();
+        return;
     }
 }

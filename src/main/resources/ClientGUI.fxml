@@ -1,46 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="400.0" prefWidth="600.0"
-            xmlns="http://javafx.com/javafx/9.0.1" fx:controller="GUIController">
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUIController">
     <children>
-        <Pane fx:id="connectionError" layoutX="200.0" layoutY="104.0" prefHeight="200.0" prefWidth="200.0"
-              visible="false">
+        <Pane fx:id="connectionError" layoutX="200.0" layoutY="104.0" prefHeight="200.0" prefWidth="200.0" visible="false">
             <children>
-                <Text fill="RED" layoutY="-13.0" strokeType="OUTSIDE" strokeWidth="0.0"
-                      text="Error connecting to the server. Try again later." textAlignment="CENTER"
-                      wrappingWidth="200.00000596046448">
+                <Text fill="RED" layoutY="-13.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Error connecting to the server. Try again later." textAlignment="CENTER" wrappingWidth="200.00000596046448">
                     <font>
-                        <Font name="System Bold" size="14.0"/>
+                        <Font name="System Bold" size="14.0" />
                     </font>
                 </Text>
             </children>
         </Pane>
-        <AnchorPane fx:id="loginScreen" layoutX="214.0" layoutY="164.0" visible="true">
+        <AnchorPane fx:id="loginScreen" layoutX="214.0" layoutY="164.0">
             <children>
-                <TextField fx:id="username" layoutX="12.0" layoutY="24.0"/>
-                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Enter your nickname:" textAlignment="CENTER"
-                      wrappingWidth="172.13671875"/>
-                <Button layoutX="70.0" layoutY="55.0" mnemonicParsing="false" onAction="#handleLoginButton" text="OK"
-                        textAlignment="CENTER"/>
+                <TextField fx:id="username" layoutX="12.0" layoutY="24.0" />
+                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Enter your nickname:" textAlignment="CENTER" wrappingWidth="172.13671875" />
+                <Button layoutX="70.0" layoutY="55.0" mnemonicParsing="false" onAction="#handleLoginButton" text="OK" textAlignment="CENTER" />
             </children>
         </AnchorPane>
         <AnchorPane fx:id="gamesList" prefHeight="400.0" prefWidth="600.0" visible="false">
             <children>
-                <ListView layoutX="76.0" layoutY="100.0" prefHeight="200.0" prefWidth="200.0"/>
-                <Text fx:id="list" layoutX="76.0" layoutY="83.0" strokeType="OUTSIDE" strokeWidth="0.0"
-                      text="Games list:" wrappingWidth="200.00000596046448"/>
-                <Button fx:id="join" layoutX="300.0" layoutY="100.0" mnemonicParsing="false" prefHeight="25.0"
-                        prefWidth="120.0" text="Join game"/>
-                <Button fx:id="refresh" layoutX="300.0" layoutY="144.0" mnemonicParsing="false"
-                        onAction="#handleGettingGames" prefHeight="25.0" prefWidth="120.0" text="Refresh"/>
-                <Button fx:id="newGameButton" layoutX="300.0" layoutY="188.0" mnemonicParsing="false" prefHeight="25.0"
-                        prefWidth="120.0" text="New Game"/>
+                <ListView layoutX="76.0" layoutY="100.0" prefHeight="200.0" prefWidth="200.0" />
+                <Text fx:id="list" layoutX="76.0" layoutY="83.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Games list:" wrappingWidth="200.00000596046448" />
+                <Button fx:id="join" layoutX="300.0" layoutY="100.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="120.0" text="Join game" />
+                <Button fx:id="refresh" layoutX="300.0" layoutY="144.0" mnemonicParsing="false" onAction="#handleGettingGames" prefHeight="25.0" prefWidth="120.0" text="Refresh" />
+                <Button fx:id="newGameButton" layoutX="300.0" layoutY="188.0" mnemonicParsing="false" onAction="#handleNewGame" prefHeight="25.0" prefWidth="120.0" text="New Game" />
             </children>
         </AnchorPane>
+      <AnchorPane fx:id="gameCreator" prefHeight="400.0" prefWidth="600.0" visible="false">
+         <children>
+            <ListView fx:id="possiblePlayers" layoutX="165.0" layoutY="100.0" prefHeight="200.0" prefWidth="98.0" />
+            <Text layoutX="165.0" layoutY="88.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Number of players" textAlignment="CENTER" />
+            <Button fx:id="createGameButton" layoutX="300.0" layoutY="231.0" mnemonicParsing="false" onAction="#handleCreateGameButton" prefHeight="25.0" prefWidth="98.0" text="Create game" />
+            <Button fx:id="cancelCreatingGameButton" layoutX="300.0" layoutY="275.0" mnemonicParsing="false" onAction="#handleCancelButton" prefHeight="25.0" prefWidth="98.0" text="Cancel" />
+            <TextField fx:id="nameOfGame" layoutX="275.0" layoutY="175.0" promptText="Default" />
+            <Text layoutX="275.0" layoutY="171.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Name of your game" textAlignment="CENTER" wrappingWidth="148.99999871850014" />
+         </children>
+      </AnchorPane>
     </children>
 </AnchorPane>
