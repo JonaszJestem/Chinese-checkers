@@ -1,14 +1,45 @@
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+
+import java.io.IOException;
 
 import static java.lang.Thread.sleep;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-class ServerTest {
+public class ServerTest {
     private Server s;
     private Thread st;
+    private ClientThread ct;
+
+    @Test(timeout = 5000)
+    public void shouldGetGamesFromServer() {
+        setUpServer();
+        setUpClient();
+
+        //Wait for server to set up
+        while (!s.isReady()) {
+            try {
+                sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        s.addGame("1", 1);
+        //connect
+        try {
+            ct.getClient().connect();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ct.getClient().getGamesFromServer();
+
+        while (true) {
+            assertTrue(ct.getClient().games.size() != 0);
+        }
+    }
 
     @Test
-    void shouldAcceptMultipleClientConnections() {
+    public void shouldAcceptMultipleClientConnections() {
         setUpServer();
 
         ClientThread c = new ClientThread();
@@ -24,9 +55,16 @@ class ServerTest {
         }
     }
 
+
     private void setUpServer() {
         s = new Server();
         st = new Thread(s);
         st.start();
     }
+
+    private void setUpClient() {
+        ct = new ClientThread();
+        ct.run();
+    }
+
 }

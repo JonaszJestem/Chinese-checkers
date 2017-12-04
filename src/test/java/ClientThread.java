@@ -12,4 +12,9 @@ class ClientThread implements Runnable {
             e.printStackTrace();
         }
     }
+
+    public Client getClient() {
+        return client;
+    }
+
 }

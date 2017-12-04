@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.List;
 
 class Client {
     private final int port = 8000;
@@ -19,8 +18,8 @@ class Client {
 
     private String userName;
     ObservableList<String> games = FXCollections.observableArrayList();
-    ArrayList<Game> newGames = new ArrayList<>();
-    Gson JSONParser = new Gson();
+    ArrayList<Game> newGames;
+    Gson JSONParser;
     String line;
 
     void setUserName(String userName) {
@@ -29,6 +28,8 @@ class Client {
 
     void connect() throws IOException {
         socket = new Socket("localhost", port);
+        JSONParser = new Gson();
+        newGames = new ArrayList<>();
 
         bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         printWriter = new PrintWriter(socket.getOutputStream(), true);
@@ -46,9 +47,9 @@ class Client {
                     games.add(g.getName());
                 }
             }
-            } catch(IOException e){
-                e.printStackTrace();
-            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     void addGame(String text, int possiblePlayers) {

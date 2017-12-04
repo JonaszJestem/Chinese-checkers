@@ -1,5 +1,3 @@
-import com.google.gson.JsonObject;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -11,6 +9,7 @@ class Server implements Runnable {
     private final int PORT = 8000;
     private ServerSocket serverSocket;
     private Socket socket;
+    private boolean isReady = false;
 
     private List<Game> games = new ArrayList<>();
 
@@ -27,6 +26,7 @@ class Server implements Runnable {
             e.printStackTrace();
         }
         System.out.println("Created server");
+        isReady = true;
 
         while (true) {
             System.out.println("Waiting for client connection");
@@ -46,5 +46,9 @@ class Server implements Runnable {
     //TODO: IMPLEMENT MAKING NEW GAME
     public void addGame(String name, int numOfPlayers) {
         games.add(new Game(name, numOfPlayers));
+    }
+
+    public boolean isReady() {
+        return isReady;
     }
 }
