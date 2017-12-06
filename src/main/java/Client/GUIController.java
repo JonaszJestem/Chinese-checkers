@@ -1,3 +1,5 @@
+package Client;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -5,6 +7,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
 
 import java.io.IOException;
 
@@ -28,24 +31,41 @@ public class GUIController {
     private AnchorPane gameCreator;
     @FXML
     private TextField nameOfGame;
+    @FXML
+    private Text greeting;
 
     private ObservableList<Integer> possiblePlayersItems = FXCollections.observableArrayList(2,3,4,6);
+    private ObservableList<String> games = FXCollections.observableArrayList();
+
+    public void shutdown() {
+        try {
+            if (client != null) {
+                if (client.isConnected)
+                    client.disconnect();
+                client.socket.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @FXML
     protected void handleLoginButton() {
-        //Create new Client
+        //Create new Client.Client
         client = new Client();
-        gameList.setItems(client.games);
-
         //Set username and disable name screen
-        client.setUserName(username.getText());
+        if (username.getText().equals(""))
+            client.setUserName("Player");
+        else
+            client.setUserName(username.getText());
+
+        greeting.setText("Hello " + client.getUserName());
         loginScreen.setVisible(false);
 
         //Connect to server and fetch games list from server
         try {
             client.connect();
             handleGettingGames();
-            System.out.println(client.games);
             gamesList.setVisible(true);
         } catch (IOException e) {
             connectionError.setVisible(true);
@@ -55,6 +75,8 @@ public class GUIController {
     @FXML
     protected void handleGettingGames() {
         client.getGamesFromServer();
+        games = FXCollections.observableArrayList(Client.games);
+        gameList.setItems(games);
     }
 
     @FXML
@@ -68,6 +90,7 @@ public class GUIController {
     private void handleCreateGameButton() {
         client.addGame(nameOfGame.getText(), possiblePlayers.getSelectionModel().getSelectedItem());
         gameCreator.setVisible(false);
+        handleGettingGames();
         gamesList.setVisible(true);
     }
 
@@ -75,5 +98,12 @@ public class GUIController {
     private void handleCancelButton() {
         gameCreator.setVisible(false);
         gamesList.setVisible(true);
+    }
+
+    @FXML
+    private void handleJoinGame() {
+        if (gameList.getItems().size() == 0) return;
+        int gameID = Integer.parseInt(gameList.getSelectionModel().getSelectedItem().split(" ")[0]);
+        client.joinGame(gameID);
     }
 }

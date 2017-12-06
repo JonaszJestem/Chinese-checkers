@@ -1,22 +1,25 @@
+import Server.Server;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.IOException;
+import java.util.ArrayList;
 
 import static java.lang.Thread.sleep;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class ServerTest {
-    private Server s;
-    private Thread st;
-    private ClientThread ct;
+    private static Server s;
+    private static Thread st;
+    private static ArrayList<ClientThread> clients = new ArrayList<>();
 
-    @Test(timeout = 5000)
-    public void shouldGetGamesFromServer() {
-        setUpServer();
-        setUpClient();
+    @BeforeClass
+    public static void setUpServer() {
+        s = new Server();
+        st = new Thread(s);
+        st.start();
 
-        //Wait for server to set up
         while (!s.isReady()) {
             try {
                 sleep(100);
@@ -24,47 +27,49 @@ public class ServerTest {
                 e.printStackTrace();
             }
         }
-        s.addGame("1", 1);
-        //connect
-        try {
-            ct.getClient().connect();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        ct.getClient().getGamesFromServer();
+    }
 
-        while (true) {
-            assertTrue(ct.getClient().games.size() != 0);
+    @BeforeClass
+    public static void setUpClients() {
+        for (int i = 0; i < 10; i++) {
+            clients.add(new ClientThread());
+            clients.get(i).run();
         }
+    }
+
+    @Test(timeout = 10000)
+    public void shouldGetGamesFromServer() {
+        s.addGame("1", 1);
+
+        clients.get(0).connect();
+        clients.get(0).getClient().getGamesFromServer();
+
+        assertTrue(clients.get(0).getClient().getGames().size() != 0);
     }
 
     @Test
     public void shouldAcceptMultipleClientConnections() {
-        setUpServer();
+        for (ClientThread c : clients) {
+            if (!c.getClient().isConnected) c.connect();
+        }
 
-        ClientThread c = new ClientThread();
-        ClientThread d = new ClientThread();
-        Thread ct = new Thread(c);
-        Thread cd = new Thread(d);
-        ct.start();
-        cd.start();
         try {
             sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        assertEquals(10, s.getNumOfPlayers());
     }
 
+    public void shouldAllowClientToJoinGameIfNotFull() {
+        s.addGame("2", 2);
+        s.addGame("3", 3);
 
-    private void setUpServer() {
-        s = new Server();
-        st = new Thread(s);
-        st.start();
+        for (ClientThread c : clients) {
+            if (!c.getClient().isConnected) c.connect();
+            //c.join("3");
+        }
+
+        //assertEquals(3,s.getGame("1").getMaxPlayers);
     }
-
-    private void setUpClient() {
-        ct = new ClientThread();
-        ct.run();
-    }
-
 }

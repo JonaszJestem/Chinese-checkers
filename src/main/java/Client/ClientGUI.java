@@ -1,3 +1,5 @@
+package Client;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,12 +16,18 @@ public class ClientGUI extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-
-        Parent root = FXMLLoader.load(getClass().getResource("/ClientGUI.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/ClientGUI.fxml"));
+        Parent root = loader.load();
 
         Scene scene = new Scene(root);
         primaryStage.setTitle("Chinese checkers");
         primaryStage.setScene(scene);
+
+        primaryStage.setResizable(false);
+
+        GUIController controller = loader.getController();
+        primaryStage.setOnCloseRequest(e -> controller.shutdown());
+
         primaryStage.show();
     }
 }

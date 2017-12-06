@@ -1,6 +1,6 @@
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
+package Server;
+
+import Game.Game;
 
 import java.io.*;
 import java.net.Socket;
@@ -31,28 +31,43 @@ class ServerThread extends Thread {
         while (true) {
             try {
                 line = reader.readLine();
-                if ((line == null) || line.equalsIgnoreCase("QUIT")) {
-                    socket.close();
-                    return;
-                } else if ((line.equalsIgnoreCase("GETGAMES"))) {
-                    games = new Gson().toJson(server.getGames());
-                    System.out.println("Sending: " + games);
-
-                    out.writeBytes(games + "\n\r");
+                if ((line.equalsIgnoreCase("GETGAMES"))) {
+                    games = buildGamesList();
+                    System.out.println(games);
+                    out.writeBytes(games + "\n");
                     out.flush();
                 } else if ((line.startsWith("CREATEGAME"))) {
                     String[] game = line.split(" ");
-                    System.out.println(game);
-                    System.out.println(line);
                     server.addGame(game[1], Integer.parseInt(game[2]));
-                } else {
-                    out.writeBytes(line + "\n\r");
+                } else if ((line.startsWith("JOIN"))) {
+                    String[] game = line.split(" ");
+                    Game g = server.getGame(Integer.parseInt(game[1]));
+                    System.out.println("Trying to join game " + game[1]);
+                    if (g.getMaxPlayers() > g.getCurrentPlayers()) {
+                        if (g.getCurrentPlayers() == 0) g.run();
+                        out.writeBytes("YES\n");
+                    } else out.writeBytes("NO\n");
                     out.flush();
+                } else if ((line.equalsIgnoreCase("QUIT"))) {
+                    Thread.currentThread().interrupt();
+                    break;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
                 return;
             }
         }
+    }
+
+    private String buildGamesList() {
+        StringBuilder sb = new StringBuilder();
+
+        for (Game g : server.getGames()) {
+            sb.append(g.getGameID() + " ");
+            sb.append(g.getGameName() + " ");
+            sb.append(g.getMaxPlayers() + ";");
+        }
+
+        return sb.toString();
     }
 }
