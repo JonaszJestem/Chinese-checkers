@@ -1,5 +1,6 @@
 package Client;
 
+import Game.GameGUI;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -39,7 +40,7 @@ public class GUIController {
 
     public void shutdown() {
         try {
-            if (client != null) {
+            if (client.socket != null) {
                 if (client.isConnected)
                     client.disconnect();
                 client.socket.close();
@@ -105,5 +106,6 @@ public class GUIController {
         if (gameList.getItems().size() == 0) return;
         int gameID = Integer.parseInt(gameList.getSelectionModel().getSelectedItem().split(" ")[0]);
         client.joinGame(gameID);
+        client.gameGUI = new GameGUI(client);
     }
 }

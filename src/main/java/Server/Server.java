@@ -1,6 +1,7 @@
 package Server;
 
 import Game.Game;
+import Game.GameThread;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -16,6 +17,7 @@ public class Server implements Runnable {
     private boolean isReady = false;
 
     private ArrayList<ServerThread> serverThreads = new ArrayList<>();
+    private ArrayList<GameThread> gameThreads = new ArrayList<GameThread>();
     private List<Game> games = new ArrayList<>();
 
     public static void main(String[] args) {
@@ -66,6 +68,16 @@ public class Server implements Runnable {
             if (g.getGameID() == id) return g;
         }
         return null;
+    }
+
+    public void runGame(int id) {
+        for (Game g : games) {
+            if (g.getGameID() == id) {
+                System.out.println("Found game to run");
+                new Thread(g).start();
+                break;
+            }
+        }
     }
 
     public void addGame(String name, int maxPlayers) {

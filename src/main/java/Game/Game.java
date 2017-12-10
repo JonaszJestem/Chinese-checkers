@@ -1,9 +1,14 @@
 package Game;
 
+import Map.Field;
+import Map.Map;
+import Map.Star;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Game implements Runnable {
     public static int gameCounter;
@@ -15,7 +20,8 @@ public class Game implements Runnable {
     private String name;
     private int maxPlayers;
     private int currentPlayers = 0;
-    //private GameMap gameMap;
+    boolean isRunning = false;
+    private Map map = new Star(500, 500);
 
     public Game(String name, int maxPlayers) {
         this.id = gameCounter++;
@@ -27,12 +33,14 @@ public class Game implements Runnable {
 
     @Override
     public void run() {
+        if (isRunning) return;
         try {
+            Game.gameCounter++;
             serverSocket = new ServerSocket(port);
-            Game.gameCounter = 0;
         } catch (IOException e) {
             e.printStackTrace();
         }
+        isRunning = true;
         while (true) {
             System.out.println("Waiting for connection");
             try {
@@ -68,5 +76,9 @@ public class Game implements Runnable {
 
     public int getCurrentPlayers() {
         return currentPlayers;
+    }
+
+    public HashSet<Field> getMap() {
+        return this.map.getFieldList();
     }
 }

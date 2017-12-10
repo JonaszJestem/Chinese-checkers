@@ -44,7 +44,11 @@ class ServerThread extends Thread {
                     Game g = server.getGame(Integer.parseInt(game[1]));
                     System.out.println("Trying to join game " + game[1]);
                     if (g.getMaxPlayers() > g.getCurrentPlayers()) {
-                        if (g.getCurrentPlayers() == 0) g.run();
+                        System.out.println("Found free place");
+                        if (g.getCurrentPlayers() == 0) {
+                            System.out.println("Starting new Game thread");
+                            server.runGame(Integer.parseInt(game[1]));
+                        }
                         out.writeBytes("YES\n");
                     } else out.writeBytes("NO\n");
                     out.flush();
