@@ -61,15 +61,16 @@ public class ServerTest {
         assertEquals(10, s.getNumOfPlayers());
     }
 
+    @Test
     public void shouldAllowClientToJoinGameIfNotFull() {
         s.addGame("2", 2);
         s.addGame("3", 3);
 
         for (ClientThread c : clients) {
             if (!c.getClient().isConnected) c.connect();
-            //c.join("3");
+            c.getClient().joinGame(1);
         }
 
-        //assertEquals(3,s.getGame("1").getMaxPlayers);
+        assertEquals(3,s.getGame(1).getCurrentPlayers());
     }
 }

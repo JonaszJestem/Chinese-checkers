@@ -70,7 +70,7 @@ public class Client {
         printWriter.flush();
     }
 
-    void joinGame(int id) {
+    public void joinGame(int id) {
         try {
             bufferedReader.ready();
             printWriter.println("JOIN " + id);
@@ -102,6 +102,16 @@ public class Client {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public void setMap(HashSet<Field> map) {
+        gameWriter.println("SETMAP");
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Field f : map) {
+            stringBuilder.append(f.x + " " + f.y + " " + f.width + "\n");
+        }
+        gameWriter.write(stringBuilder.toString() + "END\n");
+        gameWriter.flush();
     }
 
     public ArrayList<String> getGames() {

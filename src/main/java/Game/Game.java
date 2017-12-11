@@ -81,4 +81,8 @@ public class Game implements Runnable {
     public HashSet<Field> getMap() {
         return this.map.getFieldList();
     }
+
+    public void setMap(HashSet<Field> map) {
+        this.map.setFieldList(map);
+    }
 }

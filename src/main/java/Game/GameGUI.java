@@ -56,6 +56,7 @@ public class GameGUI extends JFrame {
 
         @Override
         public void mousePressed(MouseEvent e) {
+            map.setFieldList(client.getMap());
             for (Field f : map.getFieldList()) {
                 if (f.contains(e.getPoint()) && f.getColor() != ColorEnum.WHITE) {
                     field = f;
@@ -83,6 +84,7 @@ public class GameGUI extends JFrame {
                             }
                         }
                     }
+                    client.setMap(map.getFieldList());
                     repaint();
                 }
 
