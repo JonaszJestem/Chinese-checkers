@@ -1,7 +1,6 @@
 package Server;
 
 import Game.Game;
-import Game.GameThread;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -10,14 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Server implements Runnable {
-
     private final int PORT = 8000;
     private ServerSocket serverSocket;
     private Socket socket;
     private boolean isReady = false;
 
     private ArrayList<ServerThread> serverThreads = new ArrayList<>();
-    private ArrayList<GameThread> gameThreads = new ArrayList<GameThread>();
     private List<Game> games = new ArrayList<>();
 
     public static void main(String[] args) {

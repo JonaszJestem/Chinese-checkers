@@ -76,7 +76,7 @@ public class GUIController {
     @FXML
     protected void handleGettingGames() {
         client.getGamesFromServer();
-        games = FXCollections.observableArrayList(Client.games);
+        games = FXCollections.observableArrayList(client.getGames());
         gameList.setItems(games);
     }
 

@@ -1,41 +1,65 @@
 package Client;
 
 import Game.GameGUI;
+import Map.ColorEnum;
 import Map.Field;
+import Map.Map;
+import Map.Star;
 
-import java.io.*;
+import java.awt.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import static java.lang.Math.*;
+
 public class Client {
-    private final int port = 8000;
-    static ArrayList<String> games = new ArrayList<>();
+    //Connection and communication
+    private static final int port = 8000;
+    private static final String serverIP = "localhost";
+    //Game connection and communication
+    public Socket gameSocket;
     private PrintWriter printWriter;
     private BufferedReader bufferedReader;
     public boolean isConnected = false;
-    public Socket gameSocket;
-
-    private String userName;
-    Socket socket;
-    GameGUI gameGUI;
     private String line;
+    public boolean isInGame = false;
     private PrintWriter gameWriter;
     private BufferedReader gameReader;
-
-    private ObjectInputStream objectInputStream;
+    public Map map;
+    Socket socket;
+    GameGUI gameGUI;
+    //User stored variables
+    private ArrayList<String> games = new ArrayList<>();
+    private String userName;
 
     void setUserName(String userName) {
         this.userName = userName;
     }
 
+    String getUserName() {
+        return userName;
+    }
+
+    // ----------------------------------------------------------
+    // Server communication
+    // ----------------------------------------------------------
+
     public void connect() throws IOException {
         if (isConnected) return;
-        socket = new Socket("localhost", port);
-
+        socket = new Socket(serverIP, port);
         bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         printWriter = new PrintWriter(socket.getOutputStream(), true);
         isConnected = true;
+    }
+
+    void disconnect() {
+        printWriter.println("QUIT");
+        printWriter.flush();
     }
 
     public void getGamesFromServer() {
@@ -58,15 +82,13 @@ public class Client {
         }
     }
 
+    public ArrayList<String> getGames() {
+        return games;
+    }
+
     void addGame(String text, int possiblePlayers) {
         if(text.equalsIgnoreCase("")) text = "newGame";
         printWriter.println("CREATEGAME " + text.replaceAll("\\s+", "") + " " + possiblePlayers);
-        printWriter.flush();
-    }
-
-
-    void disconnect() {
-        printWriter.println("QUIT");
         printWriter.flush();
     }
 
@@ -75,50 +97,90 @@ public class Client {
             bufferedReader.ready();
             printWriter.println("JOIN " + id);
             line = bufferedReader.readLine();
-            System.out.println(line);
             if (line.equals("YES")) {
-                gameSocket = new Socket("localhost", 10000 + id);
+                gameSocket = new Socket(serverIP, 10000 + id);
                 gameReader = new BufferedReader(new InputStreamReader(gameSocket.getInputStream()));
                 gameWriter = new PrintWriter(gameSocket.getOutputStream(), true);
+                map = new Star(600, 600);
+                isInGame = true;
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public HashSet<Field> getMap() {
+    // ----------------------------------------------------------
+    // Game communication
+    // ----------------------------------------------------------
+
+    public void getMap() {
         try {
             gameWriter.println("GETMAP");
-            HashSet<Field> map = new HashSet<>();
+            HashSet<Field> fieldsFromServer = new HashSet<>();
             while (true) {
                 line = gameReader.readLine();
-                System.out.println(line);
                 if (line.equalsIgnoreCase("END")) break;
                 String[] parameters = line.split(" ");
-                map.add(new Field(Double.parseDouble(parameters[0]), Double.parseDouble(parameters[1]), Double.parseDouble(parameters[2])));
+                fieldsFromServer.add(new Field(Double.parseDouble(parameters[0]), Double.parseDouble(parameters[1]), Double.parseDouble(parameters[2])));
             }
-            return map;
+            this.map.setFieldList(fieldsFromServer);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
     }
 
-    public void setMap(HashSet<Field> map) {
+    public void sendMove() {
         gameWriter.println("SETMAP");
         StringBuilder stringBuilder = new StringBuilder();
-        for (Field f : map) {
-            stringBuilder.append(f.x + " " + f.y + " " + f.width + "\n");
+        for (Field f : map.getFieldList()) {
+            stringBuilder.append(f.x + " " + f.y + " " + f.getColor() + "\n");
         }
         gameWriter.write(stringBuilder.toString() + "END\n");
         gameWriter.flush();
     }
 
-    public ArrayList<String> getGames() {
-        return games;
+    public void move(Point moveFrom, Point moveTo) {
+        Field from = null;
+        Field to = null;
+
+        for (Field f : map.getFieldList()) {
+            if (f.contains(moveFrom) && f.getColor() != ColorEnum.WHITE) {
+                from = f;
+            }
+            if (f.contains(moveTo) && f.getColor() == ColorEnum.WHITE) {
+                to = f;
+            }
+        }
+
+        if (from != null && to != null && distance(to, from) < 90) {
+            makeMove(from, to);
+        }
     }
 
-    String getUserName() {
-        return userName;
+    private void makeMove(Field from, Field to) {
+        if (distance(to, from) <= 45) {
+            to.setColor(from.getColor());
+            from.setColor(ColorEnum.WHITE);
+        } else if (distance(to, from) <= 90) {
+            Point middle = getMiddle(from, to);
+            for (Field f : map.getFieldList()) {
+                if (f.contains(middle) && f.getColor() != ColorEnum.WHITE) {
+                    to.setColor(from.getColor());
+                    from.setColor(ColorEnum.WHITE);
+                    break;
+                }
+            }
+        }
+        sendMove();
+    }
+
+    private Point getMiddle(Field f1, Field f2) {
+        return new Point(abs(new Double((f1.x + f2.x + map.getFieldSize()) / 2).intValue()),
+                abs(new Double((f1.y + f2.y + map.getFieldSize()) / 2).intValue()));
+    }
+
+    private double distance(Field field, Field f) {
+        System.out.println("Distance: " + sqrt(pow(abs(field.x - f.x), 2) + pow(abs(field.y - f.y), 2)));
+        return sqrt(pow(abs(field.x - f.x), 2) + pow(abs(field.y - f.y), 2));
     }
 }

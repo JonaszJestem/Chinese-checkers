@@ -71,6 +71,13 @@ public class ServerTest {
             c.getClient().joinGame(1);
         }
 
-        assertEquals(3,s.getGame(1).getCurrentPlayers());
+        for (ClientThread c : clients) {
+            if (!c.getClient().isConnected) c.connect();
+            if (!c.getClient().isInGame)
+                c.getClient().joinGame(0);
+        }
+
+        assertEquals(3, s.getGame(1).getMaxPlayers());
+        assertEquals(2, s.getGame(0).getMaxPlayers());
     }
 }

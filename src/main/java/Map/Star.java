@@ -4,7 +4,7 @@ import java.util.HashSet;
 
 public class Star extends Map {
     HashSet<Field> fieldList = new HashSet<Field>();
-    int fieldSize = 20;
+    int fieldSize = 30;
 
     public Star(int height, int width) {
 

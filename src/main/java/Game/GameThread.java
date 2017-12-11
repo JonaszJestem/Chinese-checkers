@@ -53,7 +53,7 @@ public class GameThread extends Thread {
                         if (line.equalsIgnoreCase("END")) break;
                         System.out.println(line);
                         String[] parameters = line.split(" ");
-                        map.add(new Field(Double.parseDouble(parameters[0]), Double.parseDouble(parameters[1]), Double.parseDouble(parameters[2])));
+                        map.add(new Field(Double.parseDouble(parameters[0]), Double.parseDouble(parameters[1]), 30, parameters[2]));
                     }
                     System.out.println("Map set to: " + map);
                     server.setMap(map);
