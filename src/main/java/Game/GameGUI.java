@@ -16,6 +16,7 @@ public class GameGUI extends JFrame {
 
         setResizable(false);
         setSize(new Dimension(800, 800));
+        //TODO Closing operation on GameGUI ends up with closing ClientGUI as well! Don't know how to call GameGUIController.shutdown()
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
         addMouseListener(new MouseAdapter());

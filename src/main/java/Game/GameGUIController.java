@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 
 import java.io.IOException;
 
+//TODO yo dude whatta fuk, whass good
 public class GameGUIController {
     @FXML
     private Client client;
