@@ -10,11 +10,16 @@ public abstract class Map {
         return fieldList;
     }
 
-    public void setFieldList(HashSet<Field> fieldList) {
-        this.fieldList = fieldList;
+    public void setFieldList(HashSet<Field> newFieldList) {
+        this.fieldList.clear();
+        newFieldList.forEach((f) -> this.fieldList.add(f));
     }
 
     public int getFieldSize() {
         return fieldSize;
     }
+
+    public abstract void buildWithPlayers(int maxPlayers);
+
+    public abstract ColorEnum getColor();
 }

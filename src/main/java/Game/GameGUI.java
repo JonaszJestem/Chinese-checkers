@@ -39,7 +39,9 @@ public class GameGUI extends JFrame {
         @Override
         public void mousePressed(MouseEvent e) {
             client.getMap();
+            repaint();
             moveFrom = e.getPoint();
+
         }
 
         @Override

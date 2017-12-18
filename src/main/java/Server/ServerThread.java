@@ -46,7 +46,7 @@ class ServerThread extends Thread {
                         if (g.getCurrentPlayers() == 0) {
                             server.runGame(Integer.parseInt(game[1]));
                         }
-                        outputStream.writeBytes("YES\n");
+                        outputStream.writeBytes("YES " + g.getMaxPlayers() + "\n");
                     } else outputStream.writeBytes("NO\n");
                 } else if ((line.equalsIgnoreCase("QUIT"))) {
                     Thread.currentThread().interrupt();

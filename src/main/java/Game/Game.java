@@ -27,14 +27,17 @@ public class Game implements Runnable {
     private int maxPlayers;
     private int currentPlayers = 0;
     boolean isRunning = false;
-    private Map map = new Star(500, 500);
+    private Map map;
+
+
 
     public Game(String name, int maxPlayers) {
         this.id = gameCounter++;
         this.name = name;
         this.maxPlayers = maxPlayers;
         this.port = 10000 + id;
-        //gameMap = new DefaultMap();
+        map = new Star(500, 500);
+        map.buildWithPlayers(maxPlayers);
     }
 
     @Override
@@ -56,10 +59,9 @@ public class Game implements Runnable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
             gameThreads.add(new GameThread(socket, this));
             gameThreads.get(gameThreads.size() - 1).start();
-            removeInactivePlayers();
+
             currentPlayers++;
         }
     }
@@ -85,15 +87,15 @@ public class Game implements Runnable {
     }
 
     public int getCurrentPlayers() {
-        removeInactivePlayers();
         return currentPlayers;
     }
 
-    public HashSet<Field> getMap() {
-        return this.map.getFieldList();
+    public Map getMap() {
+        return this.map;
     }
 
     public void setMap(HashSet<Field> map) {
+        System.out.println("Setting new fields");
         this.map.setFieldList(map);
     }
 }
