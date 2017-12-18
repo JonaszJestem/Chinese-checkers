@@ -1,5 +1,6 @@
 package Game;
 
+import Map.ColorEnum;
 import Map.Field;
 
 import java.io.*;
@@ -38,12 +39,11 @@ public class GameThread extends Thread {
             try {
                 line = reader.readLine();
                 if ((line.equalsIgnoreCase("GETMAP"))) {
-                    HashSet<Field> map = server.getMap();
+                    HashSet<Field> map = server.getMap().getFieldList();
                     StringBuilder stringBuilder = new StringBuilder();
                     for (Field f : map) {
-                        stringBuilder.append(f.x + " " + f.y + " " + f.width + "\n");
+                        stringBuilder.append(f.x + " " + f.y + " " + f.getColor() + "\n");
                     }
-                    System.out.println("Sending: " + stringBuilder.toString() + "END\n");
                     outputStream.writeBytes(stringBuilder.toString() + "END\n");
                     outputStream.flush();
                 } else if ((line.equalsIgnoreCase("SETMAP"))) {
@@ -51,12 +51,16 @@ public class GameThread extends Thread {
                     while (true) {
                         line = reader.readLine();
                         if (line.equalsIgnoreCase("END")) break;
-                        System.out.println(line);
                         String[] parameters = line.split(" ");
                         map.add(new Field(Double.parseDouble(parameters[0]), Double.parseDouble(parameters[1]), 30, parameters[2]));
                     }
                     System.out.println("Map set to: " + map);
                     server.setMap(map);
+                } else if ((line.equalsIgnoreCase("GETCOLOR"))) {
+                    ColorEnum color = server.getMap().getColor();
+                    System.out.println(color);
+                    outputStream.writeBytes(color + "\n" + "END\n");
+                    outputStream.flush();
                 }
             } catch (IOException e) {
                 e.printStackTrace();

@@ -37,6 +37,7 @@ public class Client implements Runnable{
     //User stored variables
     private ArrayList<String> games = new ArrayList<>();
     private String userName;
+    private ColorEnum myColor;
 
     //TODO !!
     Client(GUIController guiController) {
@@ -123,12 +124,18 @@ public class Client implements Runnable{
             bufferedReader.ready();
             printWriter.println("JOIN " + id);
             line = bufferedReader.readLine();
-            if (line.equals("YES")) {
+            if (line.startsWith("YES")) {
+                String[] p = line.split(" ");
+                Integer players = Integer.parseInt(p[1]);
                 gameSocket = new Socket(serverIP, 10000 + id);
                 gameReader = new BufferedReader(new InputStreamReader(gameSocket.getInputStream()));
                 gameWriter = new PrintWriter(gameSocket.getOutputStream(), true);
-                map = new Star(600, 600);
+                map = new Star(500, 500);
+                map.buildWithPlayers(players);
+                getMap();
                 isInGame = true;
+
+                this.getColor();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -141,6 +148,20 @@ public class Client implements Runnable{
     // Game communication
     // ----------------------------------------------------------
 
+    public void getColor() {
+        try {
+            gameWriter.println("GETCOLOR");
+            while (true) {
+                line = gameReader.readLine();
+                if (line.equalsIgnoreCase("END")) break;
+                myColor = ColorEnum.valueOf(line);
+                System.out.println(myColor);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void getMap() {
         try {
             gameWriter.println("GETMAP");
@@ -149,7 +170,7 @@ public class Client implements Runnable{
                 line = gameReader.readLine();
                 if (line.equalsIgnoreCase("END")) break;
                 String[] parameters = line.split(" ");
-                fieldsFromServer.add(new Field(Double.parseDouble(parameters[0]), Double.parseDouble(parameters[1]), Double.parseDouble(parameters[2])));
+                fieldsFromServer.add(new Field(Double.parseDouble(parameters[0]), Double.parseDouble(parameters[1]), 30, parameters[2]));
             }
             this.map.setFieldList(fieldsFromServer);
         } catch (IOException e) {
@@ -170,9 +191,10 @@ public class Client implements Runnable{
     public void move(Point moveFrom, Point moveTo) {
         Field from = null;
         Field to = null;
-
+        System.out.println("MyColor: " + myColor.getRGBColor());
         for (Field f : map.getFieldList()) {
-            if (f.contains(moveFrom) && f.getColor() != ColorEnum.WHITE) {
+            System.out.println(f.getRGBColor());
+            if (f.contains(moveFrom) && f.getColor() != ColorEnum.WHITE && myColor.getRGBColor().equals(f.getRGBColor())) {
                 from = f;
             }
             if (f.contains(moveTo) && f.getColor() == ColorEnum.WHITE) {
