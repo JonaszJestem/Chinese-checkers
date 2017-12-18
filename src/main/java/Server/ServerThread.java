@@ -12,6 +12,7 @@ class ServerThread extends Thread {
     private InputStream inputStream;
     private BufferedReader reader;
     private DataOutputStream outputStream;
+    private PrintWriter printWriter;
 
     ServerThread(Socket clientSocket, Server server) {
         this.socket = clientSocket;
@@ -26,6 +27,7 @@ class ServerThread extends Thread {
             inputStream = socket.getInputStream();
             reader = new BufferedReader(new InputStreamReader(inputStream));
             outputStream = new DataOutputStream(socket.getOutputStream());
+            printWriter = new PrintWriter(socket.getOutputStream(), true);
         } catch (IOException e) {
             return;
         }
@@ -62,11 +64,16 @@ class ServerThread extends Thread {
 
     private String buildGamesList() {
         StringBuilder sb = new StringBuilder();
-        for (Game g : server.getGames()) {
+        for (Game g : server.getGames().getGames()) {
             sb.append(g.getGameID() + " ");
             sb.append(g.getGameName() + " ");
             sb.append(g.getMaxPlayers() + ";");
         }
         return sb.toString();
+    }
+
+    public void notifyAboutGames() {
+        /*printWriter.println("CHECKGAMES");
+        printWriter.flush();*/
     }
 }

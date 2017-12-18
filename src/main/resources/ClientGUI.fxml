@@ -28,8 +28,8 @@
                 <Text fx:id="list" layoutX="76.0" layoutY="83.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Games list:" wrappingWidth="200.00000596046448" />
                 <Button fx:id="joinButton" layoutX="76.0" layoutY="321.0" mnemonicParsing="false"
                         onAction="#handleJoinGame" prefHeight="25.0" prefWidth="120.0" text="Join game"/>
-                <Button fx:id="refreshButton" layoutX="240.0" layoutY="321.0" mnemonicParsing="false"
-                        onAction="#handleGettingGames" prefHeight="25.0" prefWidth="120.0" text="Refresh"/>
+                <!--<Button fx:id="refreshButton" layoutX="240.0" layoutY="321.0" mnemonicParsing="false"
+                        onAction="#handleGettingGames" prefHeight="25.0" prefWidth="120.0" text="Refresh"/> -->
                 <Button fx:id="newGameButton" layoutX="405.0" layoutY="321.0" mnemonicParsing="false"
                         onAction="#handleNewGame" prefHeight="25.0" prefWidth="120.0" text="New game"/>
                 <Text fx:id="greeting" layoutX="76.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0"

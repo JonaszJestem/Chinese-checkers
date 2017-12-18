@@ -13,9 +13,9 @@ import javafx.scene.text.Text;
 import java.io.IOException;
 
 
-public class GUIController {
+public class GUIController implements GameListObserver {
     @FXML
-    private Client client = new Client(); //TODO ok???
+    private Client client;
     @FXML
     private AnchorPane loginScreen;
     @FXML
@@ -39,9 +39,12 @@ public class GUIController {
     private ObservableList<String> games = FXCollections.observableArrayList();
 
 
-    //TODO Implement closing GUI before login when client isn't instantiated yet (???) SEE: declaration of Client variable
+    //TODO Implement closing GUI before login when client isn't instantiated yet (???)
     public void shutdown() {
         try {
+            if(client == null){
+                return;
+            }else
             if (client.socket != null) {
                 if (client.isConnected)
                     client.disconnect();
@@ -55,7 +58,8 @@ public class GUIController {
     @FXML
     protected void handleLoginButton() {
         //Create new Client.Client
-        //client = new Client();
+        client = new Client(this);
+
         //Set username and disable name screen
         if (username.getText().equals(""))
             client.setUserName("Player");
@@ -75,8 +79,8 @@ public class GUIController {
         }
     }
 
-    @FXML
-    protected void handleGettingGames() {
+    //@FXML
+    private void handleGettingGames() {
         client.getGamesFromServer();
         games = FXCollections.observableArrayList(client.getGames());
         gameList.setItems(games);
@@ -113,7 +117,11 @@ public class GUIController {
             return;
         }
 
-
         client.gameGUI = new GameGUI(client);
+    }
+
+    @Override
+    public void update() {
+        handleGettingGames();
     }
 }

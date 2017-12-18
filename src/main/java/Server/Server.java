@@ -15,7 +15,7 @@ public class Server implements Runnable {
     private boolean isReady = false;
 
     private ArrayList<ServerThread> serverThreads = new ArrayList<>();
-    private List<Game> games = new ArrayList<>();
+    private GameList games = new GameList();
 
     public static void main(String[] args) {
         new Thread(new Server()).start();
@@ -56,19 +56,19 @@ public class Server implements Runnable {
         return serverThreads.size();
     }
 
-    public List<Game> getGames() {
+    public GameList getGames() {
         return games;
     }
 
     public Game getGame(int id) {
-        for (Game g : games) {
+        for (Game g : games.getGames()) {
             if (g.getGameID() == id) return g;
         }
         return null;
     }
 
     public void runGame(int id) {
-        for (Game g : games) {
+        for (Game g : games.getGames()) {
             if (g.getGameID() == id) {
                 System.out.println("Found game to run");
                 new Thread(g).start();
@@ -78,10 +78,17 @@ public class Server implements Runnable {
     }
 
     public void addGame(String name, int maxPlayers) {
-        games.add(new Game(name, maxPlayers));
+        games.addGame(new Game(name, maxPlayers));
+        notifyAboutGames();
     }
 
     public boolean isReady() {
         return isReady;
+    }
+
+    private void notifyAboutGames(){
+        for(ServerThread serverThread: serverThreads){
+            serverThread.notifyAboutGames();
+        }
     }
 }

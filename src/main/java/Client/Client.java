@@ -17,7 +17,7 @@ import java.util.HashSet;
 
 import static java.lang.Math.*;
 
-public class Client {
+public class Client implements Runnable{
     //Connection and communication
     private static final int port = 8000;
     private static final String serverIP = "localhost";
@@ -26,16 +26,40 @@ public class Client {
     private PrintWriter printWriter;
     private BufferedReader bufferedReader;
     public boolean isConnected = false;
-    private String line;
+    private String line, runningLine;
     public boolean isInGame = false;
     private PrintWriter gameWriter;
     private BufferedReader gameReader;
     public Map map;
+    private GUIController guiController;
     Socket socket;
     GameGUI gameGUI;
     //User stored variables
     private ArrayList<String> games = new ArrayList<>();
     private String userName;
+
+    //TODO !!
+    Client(GUIController guiController) {
+        this.guiController = guiController;
+    }
+
+    public Client(){
+        super();
+    }
+
+    @Override
+    public void run() {
+        /*while(true){
+            try {
+                runningLine = bufferedReader.readLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if(runningLine.equalsIgnoreCase("CHECKGAMES")){
+                guiController.update();
+            }
+        }*/
+    }
 
     void setUserName(String userName) {
         this.userName = userName;
@@ -55,11 +79,13 @@ public class Client {
         bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         printWriter = new PrintWriter(socket.getOutputStream(), true);
         isConnected = true;
+        new Thread(this).start();
     }
 
     void disconnect() {
         printWriter.println("QUIT");
         printWriter.flush();
+        Thread.currentThread().interrupt();
     }
 
     public void getGamesFromServer() {
@@ -108,6 +134,8 @@ public class Client {
             e.printStackTrace();
         }
     }
+
+
 
     // ----------------------------------------------------------
     // Game communication
@@ -183,4 +211,6 @@ public class Client {
         System.out.println("Distance: " + sqrt(pow(abs(field.x - f.x), 2) + pow(abs(field.y - f.y), 2)));
         return sqrt(pow(abs(field.x - f.x), 2) + pow(abs(field.y - f.y), 2));
     }
+
+
 }
