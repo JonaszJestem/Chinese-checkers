@@ -1,7 +1,5 @@
 package Server;
 
-import Game.Game;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -9,13 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Server implements Runnable {
-    private final int PORT = 8000;
     private ServerSocket serverSocket;
-    private Socket socket;
-    private boolean isReady = false;
+    private final int PORT = 8000;
+    private Socket clientSocket;
+    private boolean IS_RUNNING = false;
 
-    private ArrayList<ServerThread> serverThreads = new ArrayList<>();
-    private List<Game> games = new ArrayList<>();
+    private volatile List<ServerThread> serverThreads = new ArrayList<>();
+    private volatile List<Game> gamesList = new ArrayList<>();
 
     public static void main(String[] args) {
         new Thread(new Server()).start();
@@ -28,28 +26,26 @@ public class Server implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        isReady = true;
+        IS_RUNNING = true;
 
         while (true) {
             removeInactivePlayers();
-            System.out.println("Waiting for connection");
+            System.out.println("Waiting for client connection");
             try {
-                socket = serverSocket.accept();
+                clientSocket = serverSocket.accept();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            serverThreads.add(new ServerThread(socket, this));
-            serverThreads.get(serverThreads.size() - 1).start();
-
+            ServerThread serverThread = new ServerThread(clientSocket, this);
+            serverThreads.add(serverThread);
+            serverThread.run();
         }
     }
 
     private synchronized void removeInactivePlayers() {
-        for (ServerThread st : serverThreads) {
-            if (st.getThreadGroup() == null) {
-                serverThreads.remove(st);
-            }
-        }
+        serverThreads.forEach((thread) -> {
+            if (thread.getThreadGroup() == null) serverThreads.remove(thread);
+        });
     }
 
     public int getNumOfPlayers() {
@@ -58,31 +54,23 @@ public class Server implements Runnable {
     }
 
     public List<Game> getGames() {
-        return games;
+        return gamesList;
     }
 
     public Game getGame(int id) {
-        for (Game g : games) {
-            if (g.getGameID() == id) return g;
-        }
-        return null;
+        return gamesList.stream().filter(g -> g.getGameID() == id).findFirst().orElse(null);
     }
 
     public void runGame(int id) {
-        for (Game g : games) {
-            if (g.getGameID() == id) {
-                System.out.println("Found game to run");
-                new Thread(g).start();
-                break;
-            }
-        }
+        Game game = gamesList.stream().filter(g -> g.getGameID() == id).findFirst().orElse(null);
+        new Thread(game).start();
     }
 
     public void addGame(String name, int maxPlayers) {
-        games.add(new Game(name, maxPlayers));
+        gamesList.add(new Game(name, maxPlayers));
     }
 
-    public boolean isReady() {
-        return isReady;
+    public boolean isRunning() {
+        return IS_RUNNING;
     }
 }

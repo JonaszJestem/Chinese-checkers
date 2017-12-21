@@ -1,18 +1,21 @@
 package Map;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public abstract class Map {
-    HashSet<Field> fieldList = new HashSet<>();
-    int fieldSize = 20;
+    protected HashMap<Field, ColorEnum> fieldList = new HashMap<>();
+    protected int fieldSize = 30;
+    protected int width = 500;
+    protected int height = 510;
+    protected ArrayList<ColorEnum> availableColors = new ArrayList<ColorEnum>();
 
-    public HashSet<Field> getFieldList() {
+    public HashMap<Field, ColorEnum> getFieldList() {
         return fieldList;
     }
 
-    public void setFieldList(HashSet<Field> newFieldList) {
-        this.fieldList.clear();
-        newFieldList.forEach((f) -> this.fieldList.add(f));
+    public void setFieldList(HashMap<Field, ColorEnum> newFieldList) {
+        newFieldList.forEach((k, v) -> this.fieldList.put(k, v));
     }
 
     public int getFieldSize() {
@@ -21,5 +24,12 @@ public abstract class Map {
 
     public abstract void buildWithPlayers(int maxPlayers);
 
-    public abstract ColorEnum getColor();
+    public ColorEnum getColor() {
+        if (!availableColors.isEmpty()) {
+            ColorEnum toRet = availableColors.get(0);
+            availableColors.remove(0);
+            return toRet;
+        }
+        return null;
+    }
 }

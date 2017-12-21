@@ -20,7 +20,7 @@ public class ServerTest {
         st = new Thread(s);
         st.start();
 
-        while (!s.isReady()) {
+        while (!s.isRunning()) {
             try {
                 sleep(100);
             } catch (InterruptedException e) {
