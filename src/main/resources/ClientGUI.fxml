@@ -9,9 +9,6 @@
         <Pane fx:id="connectionError" layoutX="200.0" layoutY="104.0" prefHeight="200.0" prefWidth="200.0" visible="false">
             <children>
                 <Text fill="RED" layoutY="-13.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Error connecting to the server. Try again later." textAlignment="CENTER" wrappingWidth="200.00000596046448">
-                    <font>
-                        <Font name="System Bold" size="14.0" />
-                    </font>
                 </Text>
             </children>
         </Pane>

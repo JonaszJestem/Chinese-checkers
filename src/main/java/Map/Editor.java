@@ -1,5 +1,5 @@
 package Map;
-
+/*
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -12,7 +12,7 @@ public class Editor extends JFrame {
         setSize(new Dimension(800, 800));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
-        m = new Star(getContentPane().getHeight(), getContentPane().getWidth());
+        m = new Star();
         //addMouseListener(new MouseAdapter());
         add(new EditorPanel());
     }
@@ -83,3 +83,4 @@ public class Editor extends JFrame {
 
     }
 }
+*/

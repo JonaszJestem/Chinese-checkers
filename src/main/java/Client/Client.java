@@ -1,47 +1,30 @@
 package Client;
 
-import Game.GameGUI;
-import Map.ColorEnum;
-import Map.Field;
-import Map.Map;
-import Map.Star;
-
-import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashSet;
-
-import static java.lang.Math.*;
 
 public class Client {
     //Connection and communication
     private static final int port = 8000;
     private static final String serverIP = "localhost";
-    //Game connection and communication
-    public Socket gameSocket;
     private PrintWriter printWriter;
     private BufferedReader bufferedReader;
     public boolean isConnected = false;
-    private String line;
     public boolean isInGame = false;
-    private PrintWriter gameWriter;
-    private BufferedReader gameReader;
-    public Map map;
+
     Socket socket;
-    GameGUI gameGUI;
     //User stored variables
     private ArrayList<String> games = new ArrayList<>();
     private String userName;
-    private ColorEnum myColor;
+
 
     void setUserName(String userName) {
         this.userName = userName;
     }
-
     String getUserName() {
         return userName;
     }
@@ -67,7 +50,7 @@ public class Client {
         try {
             bufferedReader.ready();
             printWriter.println("GETGAMES");
-            line = bufferedReader.readLine();
+            String line = bufferedReader.readLine();
             parseGamesFromServer(line);
         } catch (IOException e) {
             e.printStackTrace();
@@ -97,19 +80,12 @@ public class Client {
         try {
             bufferedReader.ready();
             printWriter.println("JOIN " + id);
-            line = bufferedReader.readLine();
+            String line = bufferedReader.readLine();
             if (line.startsWith("YES")) {
-                String[] p = line.split(" ");
-                Integer players = Integer.parseInt(p[1]);
-                gameSocket = new Socket(serverIP, 10000 + id);
-                gameReader = new BufferedReader(new InputStreamReader(gameSocket.getInputStream()));
-                gameWriter = new PrintWriter(gameSocket.getOutputStream(), true);
-                map = new Star(500, 500);
-                map.buildWithPlayers(players);
-                getMap();
-                isInGame = true;
+                Gamer gamer = new Gamer(serverIP, 50000 + id);
 
-                this.getColor();
+                new Thread(gamer).start();
+                isInGame = true;
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -117,14 +93,15 @@ public class Client {
     }
 
     // ----------------------------------------------------------
-    // Game communication
+    // Server.Game communication
     // ----------------------------------------------------------
-
+/*
     public void getColor() {
         try {
             gameWriter.println("GETCOLOR");
             while (true) {
                 line = gameReader.readLine();
+                System.out.println(line);
                 if (line.equalsIgnoreCase("END")) break;
                 myColor = ColorEnum.valueOf(line);
                 System.out.println(myColor);
@@ -137,12 +114,13 @@ public class Client {
     public void getMap() {
         try {
             gameWriter.println("GETMAP");
-            HashSet<Field> fieldsFromServer = new HashSet<>();
+            HashMap<Field,ColorEnum> fieldsFromServer = new HashMap<>();
             while (true) {
                 line = gameReader.readLine();
+                System.out.println(line);
                 if (line.equalsIgnoreCase("END")) break;
                 String[] parameters = line.split(" ");
-                fieldsFromServer.add(new Field(Double.parseDouble(parameters[0]), Double.parseDouble(parameters[1]), 30, parameters[2]));
+                fieldsFromServer.put(new Field(Integer.parseInt(parameters[0]), Integer.parseInt(parameters[1])), ColorEnum.valueOf(parameters[2]));
             }
             this.map.setFieldList(fieldsFromServer);
         } catch (IOException e) {
@@ -153,47 +131,53 @@ public class Client {
     public void sendMove() {
         gameWriter.println("SETMAP");
         StringBuilder stringBuilder = new StringBuilder();
-        for (Field f : map.getFieldList()) {
-            stringBuilder.append(f.x + " " + f.y + " " + f.getColor() + "\n");
-        }
+        map.getFieldList().forEach((k,v) -> stringBuilder.append(k.x + " " + k.y + " " + v.getColor() + "\n"));
+
         gameWriter.write(stringBuilder.toString() + "END\n");
         gameWriter.flush();
+
+        while(true) {
+            try {
+                line = gameReader.readLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (line.equalsIgnoreCase("YOURMOVE")) {
+                getMap();
+                break;
+            }
+        }
     }
 
     public void move(Point moveFrom, Point moveTo) {
-        Field from = null;
-        Field to = null;
-        System.out.println("MyColor: " + myColor.getRGBColor());
-        for (Field f : map.getFieldList()) {
-            System.out.println(f.getRGBColor());
-            if (f.contains(moveFrom) && f.getColor() != ColorEnum.WHITE && myColor.getRGBColor().equals(f.getRGBColor())) {
+        Entry<Field, ColorEnum> from = null;
+        Entry<Field, ColorEnum> to = null;
+
+        for (Entry<Field, ColorEnum> f : map.getFieldList().entrySet()) {
+            if (f.getKey().contains(moveFrom) && f.getValue().getColor() != ColorEnum.WHITE && myColor.getRGBColor().equals(f.getValue().getRGBColor())) {
                 from = f;
             }
-            if (f.contains(moveTo) && f.getColor() == ColorEnum.WHITE) {
+            if (f.getKey().contains(moveTo) && f.getValue().getColor() == ColorEnum.WHITE) {
                 to = f;
             }
         }
 
-        if (from != null && to != null && distance(to, from) < 90) {
-            makeMove(from, to);
-        }
-    }
-
-    private void makeMove(Field from, Field to) {
-        if (distance(to, from) <= 45) {
-            to.setColor(from.getColor());
-            from.setColor(ColorEnum.WHITE);
-        } else if (distance(to, from) <= 90) {
-            Point middle = getMiddle(from, to);
-            for (Field f : map.getFieldList()) {
-                if (f.contains(middle) && f.getColor() != ColorEnum.WHITE) {
-                    to.setColor(from.getColor());
-                    from.setColor(ColorEnum.WHITE);
-                    break;
+        if (from != null && to != null && distance(to.getKey(), from.getKey()) < 90) {
+            if (distance(from.getKey(), to.getKey()) <= 45) {
+                to.setValue(from.getValue());
+                from.setValue(ColorEnum.WHITE);
+            } else if (distance(to.getKey(), from.getKey()) <= 90) {
+                Point middle = getMiddle(from.getKey(), to.getKey());
+                for (Entry<Field, ColorEnum> f : map.getFieldList().entrySet()) {
+                    if (f.getKey().contains(middle) && f.getValue().getColor() != ColorEnum.WHITE) {
+                        to.setValue(from.getValue());
+                        from.setValue(ColorEnum.WHITE);
+                        break;
+                    }
                 }
             }
+            sendMove();
         }
-        sendMove();
     }
 
     private Point getMiddle(Field f1, Field f2) {
@@ -204,5 +188,5 @@ public class Client {
     private double distance(Field field, Field f) {
         System.out.println("Distance: " + sqrt(pow(abs(field.x - f.x), 2) + pow(abs(field.y - f.y), 2)));
         return sqrt(pow(abs(field.x - f.x), 2) + pow(abs(field.y - f.y), 2));
-    }
+    }*/
 }

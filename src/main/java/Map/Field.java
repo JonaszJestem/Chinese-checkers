@@ -1,36 +1,44 @@
 package Map;
 
-import java.awt.*;
 import java.awt.geom.Ellipse2D;
 
 public class Field extends Ellipse2D.Double {
-    private ColorEnum color;
+    //public static int id = 0;
+    public int x_int;
+    public int y_int;
+    private int size = 30;
 
-    public Field(double x, double y, double size) {
-        this.x = x;
-        this.y = y;
+    public Field(int x, int y) {
+        this.x_int = x;
+        this.y_int = y;
+        this.x = (double) x;
+        this.y = (double) y;
         this.height = size;
         this.width = size;
-        this.color = ColorEnum.WHITE;
+        //id++;
     }
 
-    public Field(double x, double y, double size, String color) {
-        this.x = x;
-        this.y = y;
+    public Field(int x, int y, int size) {
+        this.x_int = x;
+        this.y_int = y;
+        this.x = (double) x;
+        this.y = (double) y;
         this.height = size;
         this.width = size;
-        this.color = ColorEnum.valueOf(color);
+        this.size = size;
+        //id++;
     }
 
-    public ColorEnum getColor() {
-        return this.color;
+    @Override
+    public String toString() {
+        return "(" + x_int + "," + y_int + ")";
     }
 
-    public void setColor(ColorEnum color) {
-        this.color = color;
-    }
-
-    public Color getRGBColor() {
-        return this.color.getRGBColor();
+    @Override
+    public int hashCode() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(x_int);
+        sb.append(y_int);
+        return Integer.parseInt(sb.toString());
     }
 }
