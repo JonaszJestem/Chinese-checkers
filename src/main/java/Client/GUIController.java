@@ -14,7 +14,7 @@ import java.io.IOException;
 
 public class GUIController {
     @FXML
-    private Client client;
+    private Client client = new Client(); //TODO ok???
     @FXML
     private AnchorPane loginScreen;
     @FXML
@@ -37,6 +37,8 @@ public class GUIController {
     private ObservableList<Integer> possiblePlayersItems = FXCollections.observableArrayList(2,3,4,6);
     private ObservableList<String> games = FXCollections.observableArrayList();
 
+
+    //TODO Implement closing GUI before login when client isn't instantiated yet (???) SEE: declaration of Client variable
     public void shutdown() {
         try {
             if (client.socket != null) {
@@ -52,14 +54,14 @@ public class GUIController {
     @FXML
     protected void handleLoginButton() {
         //Create new Client.Client
-        client = new Client();
+        //client = new Client();
         //Set username and disable name screen
         if (username.getText().equals(""))
             client.setUserName("Player");
         else
             client.setUserName(username.getText());
 
-        greeting.setText("Hello " + client.getUserName());
+        greeting.setText("Hello, " + client.getUserName());
         loginScreen.setVisible(false);
 
         //Connect to server and fetch games list from server
@@ -103,6 +105,7 @@ public class GUIController {
     @FXML
     private void handleJoinGame() {
         if (gameList.getItems().size() == 0) return;
+        if(gameList.getSelectionModel().getSelectedItem().isEmpty()) return;
         int gameID = Integer.parseInt(gameList.getSelectionModel().getSelectedItem().split(" ")[0]);
         client.joinGame(gameID);
     }
