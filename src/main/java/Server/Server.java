@@ -29,7 +29,7 @@ public class Server implements Runnable {
         IS_RUNNING = true;
 
         while (true) {
-            removeInactivePlayers();
+//            removeInactivePlayers();
             System.out.println("Waiting for client connection");
             try {
                 clientSocket = serverSocket.accept();
@@ -38,7 +38,7 @@ public class Server implements Runnable {
             }
             ServerThread serverThread = new ServerThread(clientSocket, this);
             serverThreads.add(serverThread);
-            serverThread.run();
+            serverThread.start();
         }
     }
 

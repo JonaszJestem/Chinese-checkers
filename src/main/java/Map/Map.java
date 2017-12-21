@@ -1,20 +1,20 @@
 package Map;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Map {
-    protected HashMap<Field, ColorEnum> fieldList = new HashMap<>();
+    protected ConcurrentHashMap<Field, ColorEnum> fieldList = new ConcurrentHashMap<>();
     protected int fieldSize = 30;
     protected int width = 500;
     protected int height = 510;
     protected ArrayList<ColorEnum> availableColors = new ArrayList<ColorEnum>();
 
-    public HashMap<Field, ColorEnum> getFieldList() {
+    public ConcurrentHashMap<Field, ColorEnum> getFieldList() {
         return fieldList;
     }
 
-    public void setFieldList(HashMap<Field, ColorEnum> newFieldList) {
+    public void setFieldList(ConcurrentHashMap<Field, ColorEnum> newFieldList) {
         newFieldList.forEach((k, v) -> this.fieldList.put(k, v));
     }
 

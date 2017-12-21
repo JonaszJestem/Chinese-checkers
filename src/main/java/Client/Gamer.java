@@ -9,31 +9,23 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Gamer implements Runnable {
     private final String serverIP;
     private final int port;
     public Socket gameSocket;
-    volatile HashMap<Field, ColorEnum> map = new HashMap<>();
+    volatile ConcurrentHashMap<Field, ColorEnum> map;
     private PrintWriter gameWriter;
     private BufferedReader gameReader;
     private ColorEnum myColor;
     private GameGUI gameGUI;
+    Field from = null, to = null;
 
     public Gamer(String serverIP, int port) {
         this.serverIP = serverIP;
         this.port = port;
-    }
-
-    private void getMyColor() {
-        gameWriter.println("GETCOLOR");
-        try {
-            String line = gameReader.readLine();
-            myColor = ColorEnum.valueOf(line);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        map = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -42,7 +34,7 @@ public class Gamer implements Runnable {
             gameSocket = new Socket(serverIP, port);
             gameReader = new BufferedReader(new InputStreamReader(gameSocket.getInputStream()));
             gameWriter = new PrintWriter(gameSocket.getOutputStream(), true);
-            //getMyColor();
+            getMyColor();
 
 
         } catch (IOException e) {
@@ -50,25 +42,52 @@ public class Gamer implements Runnable {
         }
         getMap();
         gameGUI = new GameGUI(this);
-        /*
-        while(true) {
-            try {
-                String line = gameReader.readLine();
-                if(line.equalsIgnoreCase("YOURTURN")) {
-                    //makeMove();
-                }
-                else if(line.equalsIgnoreCase("MAP")) {
+        waitForCommands();
+    }
 
+    private void waitForCommands() {
+        while (true) {
+            if (waitForMove()) {
+                gameGUI.allowMoving();
+                String line;
+                getMap();
+                while (true) {
+                    try {
+                        System.out.println("Waiting for server response");
+                        line = gameReader.readLine();
+                        System.out.println(line);
+                        if (line.equalsIgnoreCase("SUCCESFUL")) {
+                            System.out.println("Move successful");
+                            applyMove();
+                            gameGUI.disableMoving();
+                            break;
+                        } else if (line.equalsIgnoreCase("WRONGMOVE")) {
+                            System.out.println("Wrong move");
+                        }
+                    } catch (IOException ex) {
+                        return;
+                    }
                 }
-                sleep(100);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return;
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
 
-        }*/
+        }
+    }
+
+    private void applyMove() {
+        ColorEnum color = map.get(from);
+        map.put(from, ColorEnum.WHITE);
+        map.put(to, color);
+    }
+
+    private void getMyColor() {
+        gameWriter.println("GETCOLOR");
+        try {
+            String line = gameReader.readLine();
+            myColor = ColorEnum.valueOf(line);
+            System.out.println("MyColor: " + myColor);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     void getMap() {
@@ -82,40 +101,42 @@ public class Gamer implements Runnable {
                 String[] parameters = line.split(" ");
                 map.put(new Field(Integer.parseInt(parameters[0]), Integer.parseInt(parameters[1])), ColorEnum.valueOf(parameters[2]));
             }
+            System.out.println("Got the map from server");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     void sendMove(Point p, Point q) {
-        Field from = null, to = null;
-        for (Field f : map.keySet()) {
+        System.out.println("In send move");
+        map.keySet().forEach((f) -> {
             if (f.contains(p)) from = f;
-            else if (f.contains(q)) to = f;
-        }
+            if (f.contains(q)) to = f;
+        });
 
         if (from != null && to != null) {
-            try {
-                gameWriter.println("MOVE " + from.x_int + " " + from.y_int + " " + to.x_int + " " + to.y_int + "\n");
-                String line;
-                while (true) {
-                    line = gameReader.readLine();
-                    if (line.equalsIgnoreCase("SUCCESSFUL")) {
-                        getMap();
-                        gameGUI.repaint();
-                        waitForMove();
-                        break;
-                    } else if (line.equalsIgnoreCase("WRONGMOVE")) {
-                        getMap();
-                        break;
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            System.out.println(from + " " + to);
+            System.out.println(map.get(to) == ColorEnum.WHITE);
+            System.out.println(map.get(from));
+            System.out.println("Sending move");
+            gameWriter.println("MOVE " + from.x_int + " " + from.y_int + " " + to.x_int + " " + to.y_int + " " + myColor);
+            waitForCommands();
         }
     }
 
-    private void waitForMove() {
+    private boolean waitForMove() {
+        System.out.println("Waiting for move");
+        String line;
+        while (true) {
+            try {
+                line = gameReader.readLine();
+                if (ColorEnum.valueOf(line) == myColor) {
+                    System.out.println("My turn!");
+                    return true;
+                }
+            } catch (IOException e) {
+                return false;
+            }
+        }
     }
 }

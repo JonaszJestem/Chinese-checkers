@@ -11,8 +11,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static java.lang.Math.abs;
 import static java.lang.StrictMath.pow;
@@ -66,9 +66,10 @@ public class Game implements Runnable {
             }
             GameThread gameThread = new GameThread(clientSocket, this);
             gameThreads.add(gameThread);
-            gameThread.run();
+            gameThread.start();
 
             currentPlayers++;
+            if (maxPlayers == currentPlayers) startGame();
         }
     }
 
@@ -98,32 +99,47 @@ public class Game implements Runnable {
         return movingPlayer;
     }
 
-    Map getMap() {
-        return this.map;
+    synchronized ConcurrentHashMap<Field, ColorEnum> getMap() {
+        return this.map.getFieldList();
     }
 
-    void setMap(HashMap<Field, ColorEnum> map) {
-        System.out.println("Setting new fields");
-        this.map.getFieldList().clear();
-        this.map.setFieldList(map);
-        movingPlayer = (movingPlayer + 1) % maxPlayers;
+    synchronized ColorEnum getColor() {
+        return this.map.getColor();
     }
 
-    public boolean move(Field from, Field to) {
-        ColorEnum color;
+    void startGame() {
+        System.out.println("Starting game & notifying " + movingPlayer);
+        gameThreads.get(movingPlayer).notifyAboutMove();
+    }
+
+    public synchronized boolean move(Field from, Field to, ColorEnum playersColor) {
+        ColorEnum color = getMap().get(from);
+        /*System.out.println("Players: " + playersColor + " tile: " + color);
+        if(playersColor != color) {
+            System.out.println("Moving with wrong color");
+            return false;
+        }*/
+        System.out.println("Got move from player:" + from + " " + to + " " + playersColor);
+        System.out.println("Distance: " + distance(from, to));
         if (distance(from, to) < 80) {
             if (distance(from, to) <= 45) {
-                color = map.getFieldList().get(from);
+                System.out.println("single move");
                 map.getFieldList().put(from, ColorEnum.WHITE);
                 map.getFieldList().put(to, color);
+                movingPlayer = (movingPlayer + 1) % maxPlayers;
+                System.out.println("Notifying " + movingPlayer);
+                gameThreads.get(movingPlayer).notifyAboutMove();
                 return true;
             } else if (distance(from, to) <= 80) {
+                System.out.println("doublemove");
                 Point middle = getMiddle(from, to);
-                for (java.util.Map.Entry<Field, ColorEnum> f : map.getFieldList().entrySet()) {
+                for (java.util.Map.Entry<Field, ColorEnum> f : getMap().entrySet()) {
                     if (f.getKey().contains(middle) && f.getValue().getColor() != ColorEnum.WHITE) {
-                        color = map.getFieldList().get(from);
                         map.getFieldList().put(from, ColorEnum.WHITE);
                         map.getFieldList().put(to, color);
+                        movingPlayer = (movingPlayer + 1) % maxPlayers;
+                        System.out.println("Notifying " + movingPlayer);
+                        gameThreads.get(movingPlayer).notifyAboutMove();
                         return true;
                     }
                 }
@@ -138,7 +154,6 @@ public class Game implements Runnable {
     }
 
     private double distance(Field field, Field f) {
-        System.out.println("Distance: " + sqrt(pow(abs(field.x - f.x), 2) + pow(abs(field.y - f.y), 2)));
         return sqrt(pow(abs(field.x - f.x), 2) + pow(abs(field.y - f.y), 2));
     }
 }

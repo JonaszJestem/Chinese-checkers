@@ -5,7 +5,7 @@ import Map.Field;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class GameThread extends Thread {
     private Socket clientSocket;
@@ -13,8 +13,9 @@ public class GameThread extends Thread {
     private InputStream inputStream;
     private BufferedReader reader;
     private DataOutputStream outputStream;
-
-    private HashMap<Field, ColorEnum> map = new HashMap<>();
+    String line;
+    private ColorEnum clientColor;
+    private ConcurrentHashMap<Field, ColorEnum> map = new ConcurrentHashMap<>();
 
     GameThread(Socket clientSocket, Game server) {
         this.clientSocket = clientSocket;
@@ -29,21 +30,30 @@ public class GameThread extends Thread {
             reader = new BufferedReader(new InputStreamReader(inputStream));
             outputStream = new DataOutputStream(clientSocket.getOutputStream());
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Disconnected");
+            this.interrupt();
+            return;
         }
 
-        String line;
+        waitForCommands();
+    }
+
+    private void waitForCommands() {
         while (true) {
             try {
+                System.out.println("Waiting for info from gamer");
                 line = reader.readLine();
                 if ((line.equalsIgnoreCase("GETMAP"))) {
                     sendMapToClient();
+                    outputStream.writeBytes("END\n");
                 } else if ((line.startsWith("MOVE"))) {
+                    System.out.println("Got move from client");
+                    System.out.println(line);
                     sendMoveToServer(line);
                 } else if ((line.equalsIgnoreCase("GETCOLOR"))) {
-                    outputStream.writeBytes(server.getMap().getColor().toString());
+                    clientColor = server.getColor();
+                    outputStream.writeBytes(clientColor.toString() + "\n");
                 }
-                outputStream.writeBytes("END\n");
                 outputStream.flush();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -53,7 +63,7 @@ public class GameThread extends Thread {
     }
 
     private void sendMapToClient() {
-        map = server.getMap().getFieldList();
+        map = server.getMap();
         map.forEach((k, v) -> {
             try {
                 outputStream.writeBytes(k.x_int + " " + k.y_int + " " + v.getColor() + "\n");
@@ -66,15 +76,25 @@ public class GameThread extends Thread {
     private void sendMoveToServer(String line) {
         try {
             String[] move = line.split(" ");
-            Field f1 = new Field(Integer.parseInt(move[1]), Integer.parseInt(move[2]));
-            Field f2 = new Field(Integer.parseInt(move[3]), Integer.parseInt(move[4]));
-            if (server.move(f1, f2)) {
+            Field from = new Field(Integer.parseInt(move[1]), Integer.parseInt(move[2]));
+            Field to = new Field(Integer.parseInt(move[3]), Integer.parseInt(move[4]));
+            if (server.move(from, to, ColorEnum.valueOf(move[5]))) {
                 outputStream.writeBytes("SUCCESFUL\n");
             } else {
-                outputStream.writeBytes("WRONGMOVE");
+                outputStream.writeBytes("WRONGMOVE\n");
             }
         } catch (IOException ex) {
             return;
+        }
+    }
+
+    void notifyAboutMove() {
+        try {
+            outputStream.writeBytes(clientColor.toString() + "\n");
+            System.out.println("Notified");
+            waitForCommands();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
