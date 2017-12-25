@@ -15,6 +15,7 @@ public class Client {
     private BufferedReader bufferedReader;
     public boolean isConnected = false;
     public boolean isInGame = false;
+    public Gamer gamer;
 
     Socket socket;
     //User stored variables
@@ -48,7 +49,7 @@ public class Client {
 
     public void getGamesFromServer() {
         try {
-            bufferedReader.ready();
+
             printWriter.println("GETGAMES");
             String line = bufferedReader.readLine();
             parseGamesFromServer(line);
@@ -78,11 +79,10 @@ public class Client {
 
     public void joinGame(int id) {
         try {
-            bufferedReader.ready();
             printWriter.println("JOIN " + id);
             String line = bufferedReader.readLine();
             if (line.startsWith("YES")) {
-                Gamer gamer = new Gamer(serverIP, 50000 + id);
+                this.gamer = new Gamer(serverIP, 50000 + id);
 
                 new Thread(gamer).start();
                 isInGame = true;

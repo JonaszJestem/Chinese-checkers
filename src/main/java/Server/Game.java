@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static java.lang.Math.abs;
 import static java.lang.StrictMath.pow;
 import static java.lang.StrictMath.sqrt;
+import static java.lang.Thread.sleep;
 
 public class Game implements Runnable {
     static int gameCounter;
@@ -26,7 +27,7 @@ public class Game implements Runnable {
     private final int maxPlayers;
     private final String gameName;
     private final int gameID;
-    private final Map map;
+    public final Map map;
     boolean IS_RUNNING = false;
     private ServerSocket gameServerSocket;
     private Socket clientSocket;
@@ -34,7 +35,7 @@ public class Game implements Runnable {
     private int currentPlayers = 0;
     private int movingPlayer = 0;
 
-    public Game(String gameName, int maxPlayers) {
+    Game(String gameName, int maxPlayers) {
         this.gameID = gameCounter++;
         this.gameName = gameName;
         this.maxPlayers = maxPlayers;
@@ -47,9 +48,11 @@ public class Game implements Runnable {
     public void run() {
         if (IS_RUNNING) return;
 
-        Collections.synchronizedList(gameThreads);
+        gameThreads = Collections.synchronizedList(gameThreads);
         try {
             gameServerSocket = new ServerSocket(port);
+            System.out.println("Created game with id: " + gameID);
+            System.out.println("Running on port: " + port);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -58,18 +61,19 @@ public class Game implements Runnable {
         map.buildWithPlayers(maxPlayers);
 
         while (true) {
+            removeInactivePlayers();
+            if (maxPlayers == currentPlayers) startGame();
             System.out.println("Waiting for connection");
             try {
                 clientSocket = gameServerSocket.accept();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            GameThread gameThread = new GameThread(clientSocket, this);
+            GameThread gameThread = new GameThread(clientSocket, this, gameThreads.size());
             gameThreads.add(gameThread);
             gameThread.start();
 
             currentPlayers++;
-            if (maxPlayers == currentPlayers) startGame();
         }
     }
 
@@ -107,53 +111,65 @@ public class Game implements Runnable {
         return this.map.getColor();
     }
 
-    void startGame() {
+    private void startGame() {
+        try {
+            sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         System.out.println("Starting game & notifying " + movingPlayer);
-        gameThreads.get(movingPlayer).notifyAboutMove();
+        synchronized (map) {
+            map.notifyAll();
+        }
     }
 
     public synchronized boolean move(Field from, Field to, ColorEnum playersColor) {
-        ColorEnum color = getMap().get(from);
-        /*System.out.println("Players: " + playersColor + " tile: " + color);
-        if(playersColor != color) {
-            System.out.println("Moving with wrong color");
-            return false;
-        }*/
-        System.out.println("Got move from player:" + from + " " + to + " " + playersColor);
-        System.out.println("Distance: " + distance(from, to));
-        if (distance(from, to) < 80) {
-            if (distance(from, to) <= 45) {
-                System.out.println("single move");
-                map.getFieldList().put(from, ColorEnum.WHITE);
-                map.getFieldList().put(to, color);
-                movingPlayer = (movingPlayer + 1) % maxPlayers;
-                System.out.println("Notifying " + movingPlayer);
-                gameThreads.get(movingPlayer).notifyAboutMove();
-                return true;
-            } else if (distance(from, to) <= 80) {
-                System.out.println("doublemove");
-                Point middle = getMiddle(from, to);
-                for (java.util.Map.Entry<Field, ColorEnum> f : getMap().entrySet()) {
-                    if (f.getKey().contains(middle) && f.getValue().getColor() != ColorEnum.WHITE) {
-                        map.getFieldList().put(from, ColorEnum.WHITE);
-                        map.getFieldList().put(to, color);
-                        movingPlayer = (movingPlayer + 1) % maxPlayers;
-                        System.out.println("Notifying " + movingPlayer);
-                        gameThreads.get(movingPlayer).notifyAboutMove();
-                        return true;
+        synchronized (map) {
+            ColorEnum color = getMap().get(from);
+            System.out.println("Players: " + playersColor + " tile: " + color);
+            if (playersColor != color) {
+                System.out.println("Moving with wrong color");
+                return false;
+            }
+            System.out.println("Got move from player:" + from + " " + to + " " + playersColor);
+            System.out.println("Distance: " + distance(from, to));
+            if (distance(from, to) < 80) {
+                if (distance(from, to) <= 45) {
+                    System.out.println("single move");
+                    map.getFieldList().put(from, ColorEnum.WHITE);
+                    map.getFieldList().put(to, color);
+                    movingPlayer = (movingPlayer + 1) % maxPlayers;
+                    System.out.println("Notifying " + movingPlayer);
+                    map.notifyAll();
+                    return true;
+                } else if (distance(from, to) <= 80) {
+                    System.out.println("doublemove");
+                    Point middle = getMiddle(from, to);
+                    for (java.util.Map.Entry<Field, ColorEnum> f : getMap().entrySet()) {
+                        if (f.getKey().contains(middle) && f.getValue().getColor() != ColorEnum.WHITE) {
+                            map.getFieldList().put(from, ColorEnum.WHITE);
+                            map.getFieldList().put(to, color);
+                            movingPlayer = (movingPlayer + 1) % maxPlayers;
+                            System.out.println("Notifying " + movingPlayer);
+                            map.notifyAll();
+                            return true;
+                        }
                     }
                 }
             }
+            return false;
         }
-        return false;
     }
 
     private Point getMiddle(Field f1, Field f2) {
-        return new Point(abs(new Double((f1.x + f2.x + map.getFieldSize()) / 2).intValue()),
-                abs(new Double((f1.y + f2.y + map.getFieldSize()) / 2).intValue()));
+        Double x = (f1.x + f2.x + map.getFieldSize()) / 2.0;
+        Double y = (f1.y + f2.y + map.getFieldSize()) / 2.0;
+        return new Point(x.intValue(), y.intValue());
     }
 
     private double distance(Field field, Field f) {
-        return sqrt(pow(abs(field.x - f.x), 2) + pow(abs(field.y - f.y), 2));
+        return sqrt(pow(abs(field.x - f.x), 2) +
+                        pow(abs(field.y - f.y), 2)
+                    );
     }
 }

@@ -14,15 +14,15 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Gamer implements Runnable {
     private final String serverIP;
     private final int port;
-    public Socket gameSocket;
-    volatile ConcurrentHashMap<Field, ColorEnum> map;
+    private Socket gameSocket;
+    public volatile ConcurrentHashMap<Field, ColorEnum> map;
     private PrintWriter gameWriter;
     private BufferedReader gameReader;
     private ColorEnum myColor;
     private GameGUI gameGUI;
-    Field from = null, to = null;
+    private Field from = null, to = null;
 
-    public Gamer(String serverIP, int port) {
+    Gamer(String serverIP, int port) {
         this.serverIP = serverIP;
         this.port = port;
         map = new ConcurrentHashMap<>();
@@ -38,24 +38,25 @@ public class Gamer implements Runnable {
 
 
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Could not connect to server");
         }
-        getMap();
-        gameGUI = new GameGUI(this);
-        waitForCommands();
-    }
 
-    private void waitForCommands() {
+        gameGUI = new GameGUI(this);
+        String line;
+
         while (true) {
-            if (waitForMove()) {
-                gameGUI.allowMoving();
-                String line;
-                getMap();
-                while (true) {
-                    try {
-                        System.out.println("Waiting for server response");
-                        line = gameReader.readLine();
-                        System.out.println(line);
+            try {
+                System.out.println("Waiting for server response");
+                line = gameReader.readLine();
+                System.out.println(line);
+                if (line.equalsIgnoreCase("MAP")) {
+                    getMap();
+                }
+                else if (line.equalsIgnoreCase("MOVE")) {
+                    System.out.println("Able to move");
+                    gameGUI.allowMoving();
+                    while(true) {
+                        gameReader.readLine();
                         if (line.equalsIgnoreCase("SUCCESFUL")) {
                             System.out.println("Move successful");
                             applyMove();
@@ -64,12 +65,11 @@ public class Gamer implements Runnable {
                         } else if (line.equalsIgnoreCase("WRONGMOVE")) {
                             System.out.println("Wrong move");
                         }
-                    } catch (IOException ex) {
-                        return;
                     }
                 }
+            } catch (IOException ex) {
+                return;
             }
-
         }
     }
 
@@ -90,24 +90,25 @@ public class Gamer implements Runnable {
         }
     }
 
-    void getMap() {
-        try {
-            gameWriter.println("GETMAP");
-            map.clear();
-            String line;
-            while (true) {
-                line = gameReader.readLine();
-                if (line.equalsIgnoreCase("END")) break;
-                String[] parameters = line.split(" ");
-                map.put(new Field(Integer.parseInt(parameters[0]), Integer.parseInt(parameters[1])), ColorEnum.valueOf(parameters[2]));
+    private void getMap() {
+        synchronized (map) {
+            try {
+                map.clear();
+                String line;
+                while (true) {
+                    line = gameReader.readLine();
+                    if (line.equalsIgnoreCase("END")) break;
+                    String[] parameters = line.split(" ");
+                    map.put(new Field(Integer.parseInt(parameters[0]), Integer.parseInt(parameters[1])), ColorEnum.valueOf(parameters[2]));
+                }
+                System.out.println("Got the map from server");
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            System.out.println("Got the map from server");
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
-    void sendMove(Point p, Point q) {
+    public void sendMove(Point p, Point q) {
         System.out.println("In send move");
         map.keySet().forEach((f) -> {
             if (f.contains(p)) from = f;
@@ -120,11 +121,10 @@ public class Gamer implements Runnable {
             System.out.println(map.get(from));
             System.out.println("Sending move");
             gameWriter.println("MOVE " + from.x_int + " " + from.y_int + " " + to.x_int + " " + to.y_int + " " + myColor);
-            waitForCommands();
         }
     }
 
-    private boolean waitForMove() {
+    public boolean waitForMove() {
         System.out.println("Waiting for move");
         String line;
         while (true) {

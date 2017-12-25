@@ -8,7 +8,7 @@ public class GameGUI extends JFrame {
     private Gamer gamer;
     private MoveAdapter moveAdapter = new MoveAdapter();
 
-    public GameGUI(Gamer gamer) {
+    GameGUI(Gamer gamer) {
         this.gamer = gamer;
 
         setResizable(false);
@@ -39,13 +39,15 @@ public class GameGUI extends JFrame {
         @Override
         public void paint(Graphics g) {
             super.paint(g);
-
             Graphics2D g2d = (Graphics2D) g;
-            gamer.map.forEach((k, v) -> {
-                g2d.setColor(v.getRGBColor());
-                g2d.draw(k);
-                g2d.fill(k);
-            });
+
+            synchronized (gamer.map) {
+                gamer.map.forEach((k, v) -> {
+                    g2d.setColor(v.getRGBColor());
+                    g2d.draw(k);
+                    g2d.fill(k);
+                });
+            }
         }
     }
 

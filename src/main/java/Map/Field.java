@@ -3,7 +3,8 @@ package Map;
 import java.awt.geom.Ellipse2D;
 
 public class Field extends Ellipse2D.Double {
-    //public static int id = 0;
+    private static int fieldsCounter = 0;
+    private int id;
     public int x_int;
     public int y_int;
     private int size = 30;
@@ -15,10 +16,11 @@ public class Field extends Ellipse2D.Double {
         this.y = (double) y;
         this.height = size;
         this.width = size;
-        //id++;
+        this.id = fieldsCounter;
+        fieldsCounter++;
     }
 
-    public Field(int x, int y, int size) {
+    Field(int x, int y, int size) {
         this.x_int = x;
         this.y_int = y;
         this.x = (double) x;
@@ -26,7 +28,8 @@ public class Field extends Ellipse2D.Double {
         this.height = size;
         this.width = size;
         this.size = size;
-        //id++;
+        this.id = fieldsCounter;
+        fieldsCounter++;
     }
 
     @Override
@@ -36,9 +39,10 @@ public class Field extends Ellipse2D.Double {
 
     @Override
     public int hashCode() {
-        StringBuffer sb = new StringBuffer();
-        sb.append(x_int);
-        sb.append(y_int);
-        return Integer.parseInt(sb.toString());
+        return Integer.parseInt(String.valueOf(x_int) + String.valueOf(y_int));
+    }
+
+    public int getId() {
+        return id;
     }
 }
