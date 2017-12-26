@@ -90,7 +90,7 @@ public class Star extends Map {
             row += fieldSize;
         }
         availableColors.clear();
-        availableColors.addAll(Arrays.asList(ColorEnum.RED, ColorEnum.PURPLE, ColorEnum.YELLOW));
+        availableColors.addAll(Arrays.asList(ColorEnum.RED, ColorEnum.BLUE, ColorEnum.BLACK));
     }
 
     private void makeFourPlayers() {

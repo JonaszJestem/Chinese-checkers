@@ -19,6 +19,7 @@ public class GameGUI extends JFrame {
         //TODO Closing operation on GameGUI ends up with closing ClientGUI as well! Don't know how to call GameGUIController.shutdown()
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
+        setBackground(Color.PINK);
         addMouseListener(new MouseAdapter());
     }
 
