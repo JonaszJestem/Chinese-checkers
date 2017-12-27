@@ -1,20 +1,8 @@
 package Map;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 
 public class Star extends Map {
-    HashSet<Field> fieldList = new HashSet<Field>();
-    int fieldSize = 30;
-    private int width;
-    private int height;
-    private ArrayList<ColorEnum> availableColors = new ArrayList<ColorEnum>();
-
-    public Star(int height, int width) {
-        this.height = height;
-        this.width = width;
-    }
 
     @Override
     public void buildWithPlayers(int maxPlayers) {
@@ -34,30 +22,27 @@ public class Star extends Map {
         Field f;
         for (int i = 0; i <= 13; i++) {
             for (int j = 0; j < i; j++) {
-                f = new Field((width / 2) - i * fieldSize / 2 + j * fieldSize, height / fieldSize + i * fieldSize, fieldSize);
+                f = new Field((width / 2) - i * fieldSize / 2 + j * fieldSize, height / fieldSize + i * fieldSize);
                 if (i <= 4) {
-                    f.setColor(ColorEnum.RED);
+                    fieldList.put(f, ColorEnum.RED);
                 } else {
-                    f.setColor(ColorEnum.WHITE);
+                    fieldList.put(f, ColorEnum.WHITE);
                 }
-                fieldList.add(f);
             }
         }
 
         int row = fieldSize * 5;
         for (int i = 13; i > 0; i--) {
             for (int j = 0; j < i; j++) {
-                f = new Field(width / 2 - i * fieldSize / 2 + j * fieldSize, height / fieldSize + row, fieldSize);
+                f = new Field(width / 2 - i * fieldSize / 2 + j * fieldSize, height / fieldSize + row);
                 if (i <= 4) {
-                    f.setColor(ColorEnum.GREEN);
+                    fieldList.put(f, ColorEnum.GREEN);
                 } else {
-                    f.setColor(ColorEnum.WHITE);
+                    fieldList.put(f, ColorEnum.WHITE);
                 }
-                fieldList.add(f);
             }
             row += fieldSize;
         }
-
         availableColors.clear();
         availableColors.addAll(Arrays.asList(ColorEnum.RED, ColorEnum.GREEN));
     }
@@ -68,15 +53,14 @@ public class Star extends Map {
             for (int j = 0; j < i; j++) {
                 f = new Field((width / 2) - i * fieldSize / 2 + j * fieldSize, height / fieldSize + i * fieldSize, fieldSize);
                 if (i <= 4) {
-                    f.setColor(ColorEnum.RED);
+                    fieldList.put(f, ColorEnum.RED);
                 } else if (i >= 10 && j <= i - 10) {
-                    f.setColor(ColorEnum.BLUE);
+                    fieldList.put(f, ColorEnum.BLUE);
                 } else if (i >= 10 && j >= 9) {
-                    f.setColor(ColorEnum.BLACK);
+                    fieldList.put(f, ColorEnum.BLACK);
                 } else {
-                    f.setColor(ColorEnum.WHITE);
+                    fieldList.put(f, ColorEnum.WHITE);
                 }
-                fieldList.add(f);
             }
         }
 
@@ -84,8 +68,7 @@ public class Star extends Map {
         for (int i = 13; i > 0; i--) {
             for (int j = 0; j < i; j++) {
                 f = new Field(width / 2 - i * fieldSize / 2 + j * fieldSize, height / fieldSize + row, fieldSize);
-                f.setColor(ColorEnum.WHITE);
-                fieldList.add(f);
+                fieldList.put(f, ColorEnum.WHITE);
             }
             row += fieldSize;
         }
@@ -99,13 +82,12 @@ public class Star extends Map {
             for (int j = 0; j < i; j++) {
                 f = new Field((width / 2) - i * fieldSize / 2 + j * fieldSize, height / fieldSize + i * fieldSize, fieldSize);
                 if (i >= 10 && j <= i - 10) {
-                    f.setColor(ColorEnum.BLUE);
+                    fieldList.put(f, ColorEnum.BLUE);
                 } else if (i >= 10 && j >= 9) {
-                    f.setColor(ColorEnum.BLACK);
+                    fieldList.put(f, ColorEnum.BLACK);
                 } else {
-                    f.setColor(ColorEnum.WHITE);
+                    fieldList.put(f, ColorEnum.WHITE);
                 }
-                fieldList.add(f);
             }
         }
 
@@ -114,13 +96,12 @@ public class Star extends Map {
             for (int j = 0; j < i; j++) {
                 f = new Field(width / 2 - i * fieldSize / 2 + j * fieldSize, height / fieldSize + row, fieldSize);
                 if (i >= 10 && i - j >= 10) {
-                    f.setColor(ColorEnum.PURPLE);
+                    fieldList.put(f, ColorEnum.PURPLE);
                 } else if (i >= 10 && i - j <= 4) {
-                    f.setColor(ColorEnum.YELLOW);
+                    fieldList.put(f, ColorEnum.YELLOW);
                 } else {
-                    f.setColor(ColorEnum.WHITE);
+                    fieldList.put(f, ColorEnum.WHITE);
                 }
-                fieldList.add(f);
             }
             row += fieldSize;
         }
@@ -135,15 +116,14 @@ public class Star extends Map {
             for (int j = 0; j < i; j++) {
                 f = new Field((width / 2) - i * fieldSize / 2 + j * fieldSize, height / fieldSize + i * fieldSize, fieldSize);
                 if (i <= 4) {
-                    f.setColor(ColorEnum.RED);
+                    fieldList.put(f, ColorEnum.RED);
                 } else if (i >= 10 && j <= i - 10) {
-                    f.setColor(ColorEnum.BLUE);
+                    fieldList.put(f, ColorEnum.BLUE);
                 } else if (i >= 10 && j >= 9) {
-                    f.setColor(ColorEnum.BLACK);
+                    fieldList.put(f, ColorEnum.BLACK);
                 } else {
-                    f.setColor(ColorEnum.WHITE);
+                    fieldList.put(f, ColorEnum.WHITE);
                 }
-                fieldList.add(f);
             }
         }
 
@@ -152,15 +132,14 @@ public class Star extends Map {
             for (int j = 0; j < i; j++) {
                 f = new Field(width / 2 - i * fieldSize / 2 + j * fieldSize, height / fieldSize + row, fieldSize);
                 if (i <= 4) {
-                    f.setColor(ColorEnum.GREEN);
+                    fieldList.put(f, ColorEnum.GREEN);
                 } else if (i >= 10 && i - j >= 10) {
-                    f.setColor(ColorEnum.PURPLE);
+                    fieldList.put(f, ColorEnum.PURPLE);
                 } else if (i >= 10 && i - j <= 4) {
-                    f.setColor(ColorEnum.YELLOW);
+                    fieldList.put(f, ColorEnum.YELLOW);
                 } else {
-                    f.setColor(ColorEnum.WHITE);
+                    fieldList.put(f, ColorEnum.WHITE);
                 }
-                fieldList.add(f);
             }
             row += fieldSize;
         }
@@ -169,19 +148,4 @@ public class Star extends Map {
         availableColors.addAll(Arrays.asList(ColorEnum.BLUE, ColorEnum.RED, ColorEnum.BLACK, ColorEnum.PURPLE, ColorEnum.YELLOW, ColorEnum.GREEN));
     }
 
-    public ColorEnum getColor() {
-        if (!availableColors.isEmpty()) {
-            availableColors.remove(0);
-            return availableColors.get(0);
-        }
-        return null;
-    }
-
-    public HashSet<Field> getFieldList() {
-        return fieldList;
-    }
-
-    public int getFieldSize() {
-        return fieldSize;
-    }
 }

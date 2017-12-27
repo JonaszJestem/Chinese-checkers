@@ -1,6 +1,5 @@
 package Client;
 
-import Game.GameGUI;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -13,9 +12,9 @@ import javafx.scene.text.Text;
 import java.io.IOException;
 
 
-public class GUIController implements GameListObserver {
+public class GUIController {
     @FXML
-    private Client client;
+    private Client client = new Client(); //TODO ok???
     @FXML
     private AnchorPane loginScreen;
     @FXML
@@ -39,12 +38,9 @@ public class GUIController implements GameListObserver {
     private ObservableList<String> games = FXCollections.observableArrayList();
 
 
-    //TODO Implement closing GUI before login when client isn't instantiated yet (???)
+    //TODO Implement closing GUI before login when client isn't instantiated yet (???) SEE: declaration of Client variable
     public void shutdown() {
         try {
-            if(client == null){
-                return;
-            }else
             if (client.socket != null) {
                 if (client.isConnected)
                     client.disconnect();
@@ -58,8 +54,7 @@ public class GUIController implements GameListObserver {
     @FXML
     protected void handleLoginButton() {
         //Create new Client.Client
-        client = new Client(this);
-
+        //client = new Client();
         //Set username and disable name screen
         if (username.getText().equals(""))
             client.setUserName("Player");
@@ -79,8 +74,8 @@ public class GUIController implements GameListObserver {
         }
     }
 
-    //@FXML
-    private void handleGettingGames() {
+    @FXML
+    protected void handleGettingGames() {
         client.getGamesFromServer();
         games = FXCollections.observableArrayList(client.getGames());
         gameList.setItems(games);
@@ -110,18 +105,8 @@ public class GUIController implements GameListObserver {
     @FXML
     private void handleJoinGame() {
         if (gameList.getItems().size() == 0) return;
-        try{
-            int gameID = Integer.parseInt(gameList.getSelectionModel().getSelectedItem().split(" ")[0]);
-            client.joinGame(gameID);
-        }catch(NullPointerException ex){
-            return;
-        }
-
-        client.gameGUI = new GameGUI(client);
-    }
-
-    @Override
-    public void update() {
-        handleGettingGames();
+        if(gameList.getSelectionModel().getSelectedItem().isEmpty()) return;
+        int gameID = Integer.parseInt(gameList.getSelectionModel().getSelectedItem().split(" ")[0]);
+        client.joinGame(gameID);
     }
 }
