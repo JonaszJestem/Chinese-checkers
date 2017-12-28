@@ -4,9 +4,29 @@ import java.util.Arrays;
 
 public class Star extends Map {
 
+    public Star(){
+        Field f;
+        for (int i = 0; i <= 13; i++) {
+            for (int j = 0; j < i; j++) {
+                f = new Field((width / 2) - i * fieldSize / 2 + j * fieldSize, height / fieldSize + i * fieldSize);
+                fieldList.put(f, ColorEnum.WHITE);
+            }
+        }
+
+        int row = fieldSize * 5;
+        for (int i = 13; i > 0; i--) {
+            for (int j = 0; j < i; j++) {
+                f = new Field(width / 2 - i * fieldSize / 2 + j * fieldSize, height / fieldSize + row);
+                fieldList.put(f, ColorEnum.WHITE);
+            }
+            row += fieldSize;
+        }
+    }
+
     @Override
     public void buildWithPlayers(int maxPlayers) {
         System.out.println("Building with " + maxPlayers);
+        this.maxPlayers = maxPlayers;
         if (maxPlayers == 6) {
             makeSixPlayers();
         } else if (maxPlayers == 4) {
@@ -19,133 +39,116 @@ public class Star extends Map {
     }
 
     private void makeTwoPlayers() {
-        Field f;
-        for (int i = 0; i <= 13; i++) {
-            for (int j = 0; j < i; j++) {
-                f = new Field((width / 2) - i * fieldSize / 2 + j * fieldSize, height / fieldSize + i * fieldSize);
-                if (i <= 4) {
-                    fieldList.put(f, ColorEnum.RED);
-                } else {
-                    fieldList.put(f, ColorEnum.WHITE);
-                }
-            }
-        }
-
-        int row = fieldSize * 5;
-        for (int i = 13; i > 0; i--) {
-            for (int j = 0; j < i; j++) {
-                f = new Field(width / 2 - i * fieldSize / 2 + j * fieldSize, height / fieldSize + row);
-                if (i <= 4) {
-                    fieldList.put(f, ColorEnum.GREEN);
-                } else {
-                    fieldList.put(f, ColorEnum.WHITE);
-                }
-            }
-            row += fieldSize;
-        }
+        drawRed();
+        drawGreen();
         availableColors.clear();
         availableColors.addAll(Arrays.asList(ColorEnum.RED, ColorEnum.GREEN));
     }
 
     private void makeThreePlayers() {
-        Field f;
-        for (int i = 0; i <= 13; i++) {
-            for (int j = 0; j < i; j++) {
-                f = new Field((width / 2) - i * fieldSize / 2 + j * fieldSize, height / fieldSize + i * fieldSize, fieldSize);
-                if (i <= 4) {
-                    fieldList.put(f, ColorEnum.RED);
-                } else if (i >= 10 && j <= i - 10) {
-                    fieldList.put(f, ColorEnum.BLUE);
-                } else if (i >= 10 && j >= 9) {
-                    fieldList.put(f, ColorEnum.BLACK);
-                } else {
-                    fieldList.put(f, ColorEnum.WHITE);
-                }
-            }
-        }
-
-        int row = fieldSize * 5;
-        for (int i = 13; i > 0; i--) {
-            for (int j = 0; j < i; j++) {
-                f = new Field(width / 2 - i * fieldSize / 2 + j * fieldSize, height / fieldSize + row, fieldSize);
-                fieldList.put(f, ColorEnum.WHITE);
-            }
-            row += fieldSize;
-        }
+        drawRed();
+        drawBlue();
+        drawBlack();
         availableColors.clear();
         availableColors.addAll(Arrays.asList(ColorEnum.RED, ColorEnum.BLUE, ColorEnum.BLACK));
     }
 
     private void makeFourPlayers() {
-        Field f;
-        for (int i = 0; i <= 13; i++) {
-            for (int j = 0; j < i; j++) {
-                f = new Field((width / 2) - i * fieldSize / 2 + j * fieldSize, height / fieldSize + i * fieldSize, fieldSize);
-                if (i >= 10 && j <= i - 10) {
-                    fieldList.put(f, ColorEnum.BLUE);
-                } else if (i >= 10 && j >= 9) {
-                    fieldList.put(f, ColorEnum.BLACK);
-                } else {
-                    fieldList.put(f, ColorEnum.WHITE);
-                }
-            }
-        }
-
-        int row = fieldSize * 5;
-        for (int i = 13; i > 0; i--) {
-            for (int j = 0; j < i; j++) {
-                f = new Field(width / 2 - i * fieldSize / 2 + j * fieldSize, height / fieldSize + row, fieldSize);
-                if (i >= 10 && i - j >= 10) {
-                    fieldList.put(f, ColorEnum.PURPLE);
-                } else if (i >= 10 && i - j <= 4) {
-                    fieldList.put(f, ColorEnum.YELLOW);
-                } else {
-                    fieldList.put(f, ColorEnum.WHITE);
-                }
-            }
-            row += fieldSize;
-        }
-
+        drawBlue();
+        drawBlack();
+        drawPurple();
+        drawYellow();
         availableColors.clear();
         availableColors.addAll(Arrays.asList(ColorEnum.BLUE, ColorEnum.BLACK, ColorEnum.PURPLE, ColorEnum.YELLOW));
     }
 
     private void makeSixPlayers() {
-        Field f;
-        for (int i = 0; i <= 13; i++) {
-            for (int j = 0; j < i; j++) {
-                f = new Field((width / 2) - i * fieldSize / 2 + j * fieldSize, height / fieldSize + i * fieldSize, fieldSize);
-                if (i <= 4) {
-                    fieldList.put(f, ColorEnum.RED);
-                } else if (i >= 10 && j <= i - 10) {
-                    fieldList.put(f, ColorEnum.BLUE);
-                } else if (i >= 10 && j >= 9) {
-                    fieldList.put(f, ColorEnum.BLACK);
-                } else {
-                    fieldList.put(f, ColorEnum.WHITE);
-                }
-            }
-        }
-
-        int row = fieldSize * 5;
-        for (int i = 13; i > 0; i--) {
-            for (int j = 0; j < i; j++) {
-                f = new Field(width / 2 - i * fieldSize / 2 + j * fieldSize, height / fieldSize + row, fieldSize);
-                if (i <= 4) {
-                    fieldList.put(f, ColorEnum.GREEN);
-                } else if (i >= 10 && i - j >= 10) {
-                    fieldList.put(f, ColorEnum.PURPLE);
-                } else if (i >= 10 && i - j <= 4) {
-                    fieldList.put(f, ColorEnum.YELLOW);
-                } else {
-                    fieldList.put(f, ColorEnum.WHITE);
-                }
-            }
-            row += fieldSize;
-        }
-
+        drawBlue();
+        drawRed();
+        drawBlack();
+        drawPurple();
+        drawYellow();
+        drawGreen();
         availableColors.clear();
         availableColors.addAll(Arrays.asList(ColorEnum.BLUE, ColorEnum.RED, ColorEnum.BLACK, ColorEnum.PURPLE, ColorEnum.YELLOW, ColorEnum.GREEN));
     }
 
+
+    private void drawRed(){
+        Field f;
+        for (int i = 0; i <= 13; i++) {
+            for (int j = 0; j < i; j++) {
+                if (i <= 4) {
+                    f = new Field((width / 2) - i * fieldSize / 2 + j * fieldSize, height / fieldSize + i * fieldSize);
+                    fieldList.put(f, ColorEnum.RED);
+                }
+            }
+        }
+    }
+
+    private void drawGreen() {
+        Field f;
+        int row = fieldSize * 5;
+        for (int i = 13; i > 0; i--) {
+            for (int j = 0; j < i; j++) {
+                if (i <= 4) {
+                    f = new Field(width / 2 - i * fieldSize / 2 + j * fieldSize, height / fieldSize + row);
+                    fieldList.put(f, ColorEnum.GREEN);
+                }
+            }
+            row += fieldSize;
+        }
+    }
+
+    private void drawBlue(){
+        Field f;
+        for (int i = 0; i <= 13; i++) {
+            for (int j = 0; j < i; j++) {
+                if (i >= 10 && j <= i - 10) {
+                    f = new Field((width / 2) - i * fieldSize / 2 + j * fieldSize, height / fieldSize + i * fieldSize, fieldSize);
+                    fieldList.put(f, ColorEnum.BLUE);
+                }
+            }
+        }
+    }
+
+    private void drawBlack(){
+        Field f;
+        for (int i = 0; i <= 13; i++) {
+            for (int j = 0; j < i; j++) {
+                if (i >= 10 && j >= 9) {
+                    f = new Field((width / 2) - i * fieldSize / 2 + j * fieldSize, height / fieldSize + i * fieldSize, fieldSize);
+                    fieldList.put(f, ColorEnum.BLACK);
+                }
+            }
+        }
+    }
+
+    private void drawYellow(){
+        Field f;
+        int row = fieldSize * 5;
+        for (int i = 13; i > 0; i--) {
+            for (int j = 0; j < i; j++) {
+                if (i >= 10 && j >= 9) {
+                    f = new Field(width / 2 - i * fieldSize / 2 + j * fieldSize, height / fieldSize + row, fieldSize);
+                    fieldList.put(f, ColorEnum.YELLOW);
+                }
+            }
+            row += fieldSize;
+        }
+    }
+
+    private void drawPurple(){
+        Field f;
+        int row = fieldSize * 5;
+        for (int i = 13; i > 0; i--) {
+            for (int j = 0; j < i; j++) {
+                if (i >= 10 && i - j >= 10) {
+                    f = new Field(width / 2 - i * fieldSize / 2 + j * fieldSize, height / fieldSize + row, fieldSize);
+                    fieldList.put(f, ColorEnum.PURPLE);
+                }
+            }
+            row += fieldSize;
+        }
+    }
 }

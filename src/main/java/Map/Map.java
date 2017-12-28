@@ -9,6 +9,7 @@ public abstract class Map {
     protected int width = 500;
     protected int height = 510;
     protected ArrayList<ColorEnum> availableColors = new ArrayList<ColorEnum>();
+    protected int maxPlayers;
 
     public ConcurrentHashMap<Field, ColorEnum> getFieldList() {
         return fieldList;

@@ -58,7 +58,7 @@ public class Game implements Runnable {
         }
         IS_RUNNING = true;
 
-        map.buildWithPlayers(maxPlayers);
+        //map.buildWithPlayers(maxPlayers);
 
         while (true) {
             removeInactivePlayers();
