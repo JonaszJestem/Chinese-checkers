@@ -103,6 +103,10 @@ public class Game implements Runnable {
         return movingPlayer;
     }
 
+    ColorEnum getMovingColor() {
+        return gameThreads.get(movingPlayer).clientColor;
+    }
+
     synchronized ConcurrentHashMap<Field, ColorEnum> getMap() {
         return this.map.getFieldList();
     }
@@ -125,23 +129,28 @@ public class Game implements Runnable {
 
     public synchronized boolean move(Field from, Field to, ColorEnum playersColor) {
         synchronized (map) {
-            ColorEnum color = map.getFieldList().get(from);
+            System.out.println("Map on server while moving" + getMap());
+            System.out.println("Moving on serve: " + from + " -> " + to + " Color: " + playersColor);
+            ColorEnum color = getMap().get(from);
             System.out.println("Players: " + playersColor + " tile: " + color);
             if (playersColor != color) {
                 System.out.println("Moving with wrong color");
                 return false;
+            }
+            if(getMap().get(to) != ColorEnum.WHITE) {
+                System.out.println("Field taken");
             }
             System.out.println("Got move from player:" + from + " " + to + " " + playersColor);
             System.out.println("Distance: " + distance(from, to));
             if (distance(from, to) < 80) {
                 if (distance(from, to) <= 45) {
                     System.out.println("single move");
-                    System.out.println("Field before: " + map.getFieldList().get(from));
-                    map.getFieldList().put(from, ColorEnum.WHITE);
-                    System.out.println("Field after: " + map.getFieldList().get(from));
-                    System.out.println("Field before: " + map.getFieldList().get(to));
-                    map.getFieldList().put(to, color);
-                    System.out.println("Field after: " + map.getFieldList().get(to));
+                    System.out.println("Field before: " + getMap().get(from));
+                    getMap().put(from, ColorEnum.WHITE);
+                    System.out.println("Field after: " + getMap().get(from));
+                    System.out.println("Field before: " + getMap().get(to));
+                    getMap().put(to, color);
+                    System.out.println("Field after: " + getMap().get(to));
                     movingPlayer = (movingPlayer + 1) % maxPlayers;
                     System.out.println("Notifying " + movingPlayer);
                     map.notifyAll();
@@ -151,8 +160,8 @@ public class Game implements Runnable {
                     Point middle = getMiddle(from, to);
                     for (java.util.Map.Entry<Field, ColorEnum> f : getMap().entrySet()) {
                         if (f.getKey().contains(middle) && f.getValue().getColor() != ColorEnum.WHITE) {
-                            map.getFieldList().put(from, ColorEnum.WHITE);
-                            map.getFieldList().put(to, color);
+                            getMap().put(from, ColorEnum.WHITE);
+                            getMap().put(to, color);
                             movingPlayer = (movingPlayer + 1) % maxPlayers;
                             System.out.println("Notifying " + movingPlayer);
                             map.notifyAll();

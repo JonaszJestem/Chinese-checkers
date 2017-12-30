@@ -3,6 +3,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import java.io.IOException;
 import java.util.ArrayList;
+import Map.*;
+
 import Client.*;
 import static java.lang.Thread.sleep;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -60,6 +62,10 @@ public class GameTest {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+
+        for(Field f: c1.gamer.getFieldList().keySet()) {
+            assertEquals(c1.gamer.getFieldList().get(f), (s.getGame(0).map.getFieldList().get(f)));
         }
 
         assertEquals(c1.gamer.getFieldList(), s.getGame(0).map.getFieldList());

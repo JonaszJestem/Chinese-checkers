@@ -1,13 +1,16 @@
 package Map;
 
+import java.awt.*;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 
 public class Field extends Ellipse2D.Double {
     private static int fieldsCounter = 0;
     private int id;
     public int x_int;
     public int y_int;
-    private int size = 30;
+    public int size = 30;
+    public Point2D middle;
 
     public Field(int x, int y) {
         this.x_int = x;
@@ -16,20 +19,15 @@ public class Field extends Ellipse2D.Double {
         this.y = (double) y;
         this.height = size;
         this.width = size;
+        this.middle = new Point(this.x_int + size/2, this.y_int + size/2);
+
         this.id = fieldsCounter;
         fieldsCounter++;
     }
 
     Field(int x, int y, int size) {
-        this.x_int = x;
-        this.y_int = y;
-        this.x = (double) x;
-        this.y = (double) y;
-        this.height = size;
-        this.width = size;
+        this(x,y);
         this.size = size;
-        this.id = fieldsCounter;
-        fieldsCounter++;
     }
 
     @Override

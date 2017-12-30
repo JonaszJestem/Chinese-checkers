@@ -19,7 +19,7 @@ public class Gamer implements Runnable {
     public volatile ConcurrentHashMap<Field, ColorEnum> map;
     PrintWriter gameWriter;
     BufferedReader gameReader;
-    ColorEnum myColor;
+    ColorEnum myColor, currentColor;
     private GameGUI gameGUI;
     Field from = null, to = null;
     String line;
@@ -60,8 +60,10 @@ public class Gamer implements Runnable {
                     getMap();
                 }
                 else if (line.equalsIgnoreCase("MOVE")) {
+                    getMap();
                     System.out.println("Able to move");
                     gameGUI.allowMoving();
+                    gameGUI.repaint();
                 }
 
                 from = null; to = null;
@@ -72,11 +74,12 @@ public class Gamer implements Runnable {
     }
 
     private void applyMove() {
-        ColorEnum color = getFieldList().get(from);
         synchronized (map) {
+            ColorEnum color = map.get(from);
             map.put(from, ColorEnum.WHITE);
             map.put(to, color);
         }
+        gameGUI.repaint();
     }
 
     private void getMyColor() {
@@ -97,15 +100,20 @@ public class Gamer implements Runnable {
                 String line;
                 while (true) {
                     line = gameReader.readLine();
-                    if (line.equalsIgnoreCase("END")) break;
+                    if(line.equalsIgnoreCase("END")) break;
                     String[] parameters = line.split(" ");
+                    if(parameters.length == 1) {
+                        currentColor = ColorEnum.valueOf(parameters[0]);
+                        break;
+                    }
                     map.put(new Field(Integer.parseInt(parameters[0]), Integer.parseInt(parameters[1])), ColorEnum.valueOf(parameters[2]));
                 }
-                System.out.println("Got the map from server");
+                System.out.println("Map from getMap clientside: "+map);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+        gameGUI.repaint();
     }
 
     public synchronized ConcurrentHashMap<Field, ColorEnum> getFieldList() {
