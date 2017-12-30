@@ -33,4 +33,6 @@ public abstract class Map {
         }
         return null;
     }
+
+    public abstract void drawColor(ColorEnum colorEnum);
 }

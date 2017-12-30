@@ -1,6 +1,7 @@
 package Client;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
@@ -32,7 +33,7 @@ public class GameGUI extends JFrame {
     class Canvas extends JPanel {
         Canvas() {
             setBackground(Color.LIGHT_GRAY);
-            setSize(new Dimension(500, 510));
+            setSize(new Dimension(500, 610));
             //addMouseListener(new MoveAdapter());
         }
 

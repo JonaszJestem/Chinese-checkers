@@ -1,5 +1,6 @@
 package Map;
 
+import java.awt.*;
 import java.awt.geom.Ellipse2D;
 
 public class Field extends Ellipse2D.Double {
@@ -8,6 +9,7 @@ public class Field extends Ellipse2D.Double {
     public int x_int;
     public int y_int;
     private int size = 30;
+    public ColorEnum endPoint = ColorEnum.WHITE;
 
     public Field(int x, int y) {
         this.x_int = x;
@@ -30,6 +32,14 @@ public class Field extends Ellipse2D.Double {
         this.size = size;
         this.id = fieldsCounter;
         fieldsCounter++;
+    }
+
+    public void setEndPoint(ColorEnum colorEnum){
+        this.endPoint = colorEnum;
+    }
+
+    public boolean isEndPoint(ColorEnum colorEnum){
+        return this.endPoint == colorEnum;
     }
 
     @Override
