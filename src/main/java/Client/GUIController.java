@@ -11,6 +11,10 @@ import javafx.scene.text.Text;
 
 import java.io.IOException;
 
+import static java.lang.Math.abs;
+import static java.lang.Math.random;
+import static java.lang.StrictMath.floor;
+
 
 public class GUIController {
     @FXML
@@ -33,6 +37,8 @@ public class GUIController {
     private TextField nameOfGame;
     @FXML
     private Text greeting;
+    @FXML
+    private Text numOfClients;
 
     private ObservableList<Integer> possiblePlayersItems = FXCollections.observableArrayList(2,3,4,6);
     private ObservableList<String> games = FXCollections.observableArrayList();
@@ -56,8 +62,8 @@ public class GUIController {
         //Create new Client.Client
         //client = new Client();
         //Set username and disable name screen
-        if (username.getText().equals(""))
-            client.setUserName("Player");
+        if (username.getText().trim().equals(""))
+            client.setUserName("Player" + String.valueOf(floor(abs(random()*1000))).split("\\.")[0]);
         else
             client.setUserName(username.getText());
 
@@ -75,10 +81,21 @@ public class GUIController {
     }
 
     @FXML
+    protected void handleDeleteButton() {
+        if (gameList.getItems().size() == 0) return;
+        if(gameList.getSelectionModel().getSelectedItem() == null) return;
+        int gameID = Integer.parseInt(gameList.getSelectionModel().getSelectedItem().split(" ")[0]);
+        client.deleteGame(gameID);
+        handleGettingGames();
+    }
+
+    @FXML
     protected void handleGettingGames() {
         client.getGamesFromServer();
         games = FXCollections.observableArrayList(client.getGames());
         gameList.setItems(games);
+
+        numOfClients.setText("Current clients: " + client.currentClients);
     }
 
     @FXML
@@ -105,7 +122,7 @@ public class GUIController {
     @FXML
     private void handleJoinGame() {
         if (gameList.getItems().size() == 0) return;
-        if(gameList.getSelectionModel().getSelectedItem().isEmpty()) return;
+        if(gameList.getSelectionModel().getSelectedItem() == null) return;
         int gameID = Integer.parseInt(gameList.getSelectionModel().getSelectedItem().split(" ")[0]);
         client.joinGame(gameID);
     }

@@ -6,6 +6,9 @@ import Map.Field;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 import static java.lang.Math.abs;
 import static java.lang.StrictMath.pow;
@@ -25,8 +28,8 @@ public class GameGUI extends JFrame {
         setResizable(false);
         setSize(new Dimension(800, 800));
         getContentPane().setBackground(Color.WHITE);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
+        addWindowListener(new ExitListener());
 
         getContentPane().add(new Canvas(), BorderLayout.CENTER);
 
@@ -138,5 +141,19 @@ public class GameGUI extends JFrame {
             allowMoving();
         }
 
+    }
+
+    private class ExitListener extends WindowAdapter {
+        @Override
+        public void windowClosing(WindowEvent e) {
+            int confirm = JOptionPane.showOptionDialog(
+                    null, "Are You Sure to quit game?",
+                    "Exit Confirmation", JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE, null, null, null);
+            if (confirm == 0) {
+                gamer.gameWriter.println("QUIT");
+                dispose();
+            }
+        }
     }
 }

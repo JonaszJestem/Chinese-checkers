@@ -16,6 +16,7 @@ public class Client {
     public boolean isConnected = false;
     public boolean isInGame = false;
     public Gamer gamer;
+    int currentClients = 1;
 
     Socket socket;
     //User stored variables
@@ -40,10 +41,12 @@ public class Client {
         bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         printWriter = new PrintWriter(socket.getOutputStream(), true);
         isConnected = true;
+
+        printWriter.println("USERNAME " + this.userName);
     }
 
     void disconnect() {
-        printWriter.println("QUIT");
+        printWriter.println("QUIT\n");
         printWriter.flush();
     }
 
@@ -63,7 +66,13 @@ public class Client {
         if (line.length() == 0) return;
         String[] gameList = line.split(";");
         for (String g : gameList) {
-            games.add(g.split(" ")[0] + " " + g.split(" ")[1]);
+            if(g.startsWith("CurrentPlayers")) {
+                String[] currPlayers = g.split(" ");
+                currentClients = Integer.parseInt(currPlayers[1]);
+                return;
+            }
+
+            games.add(g.split(" ")[0] + " " + g.split(" ")[1] + " \t\t\t " + g.split(" ")[2] + " \t\t\t " + g.split(" ")[3] + "/" + g.split(" ")[4]);
         }
     }
 
@@ -73,7 +82,7 @@ public class Client {
 
     void addGame(String text, int possiblePlayers) {
         if(text.equalsIgnoreCase("")) text = "newGame";
-        printWriter.println("CREATEGAME " + text.replaceAll("\\s+", "") + " " + possiblePlayers);
+        printWriter.println("CREATEGAME " + text.replaceAll("\\s+", "") + " " + possiblePlayers + " ");
         printWriter.flush();
     }
 
@@ -90,5 +99,9 @@ public class Client {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void deleteGame(int gameID) {
+        printWriter.println("DELETE " + gameID);
     }
 }

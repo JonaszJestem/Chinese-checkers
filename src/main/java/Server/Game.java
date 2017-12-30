@@ -11,6 +11,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,6 +35,7 @@ public class Game implements Runnable {
     private volatile List<GameThread> gameThreads = new ArrayList<>();
     private int currentPlayers = 0;
     private int movingPlayer = 0;
+    String gameMaster;
 
     Game(String gameName, int maxPlayers) {
         this.gameID = gameCounter++;
@@ -42,6 +44,11 @@ public class Game implements Runnable {
         this.port = 50000 + gameID;
         map = new Star();
         map.buildWithPlayers(maxPlayers);
+    }
+
+    Game(String gameName, int maxPlayers, String gameMaster) {
+        this(gameName,maxPlayers);
+        this.gameMaster = gameMaster;
     }
 
     @Override
@@ -61,7 +68,7 @@ public class Game implements Runnable {
         map.buildWithPlayers(maxPlayers);
 
         while (true) {
-//            removeInactivePlayers();
+            removeInactivePlayers();
             if (maxPlayers == currentPlayers) startGame();
             System.out.println("Waiting for connection");
             try {
@@ -69,18 +76,24 @@ public class Game implements Runnable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            GameThread gameThread = new GameThread(clientSocket, this, gameThreads.size());
-            gameThreads.add(gameThread);
-            gameThread.start();
-
-            currentPlayers++;
+            synchronized (gameThreads) {
+                GameThread gameThread = new GameThread(clientSocket, this, gameThreads.size());
+                gameThreads.add(gameThread);
+                gameThread.start();
+                currentPlayers++;
+            }
         }
     }
 
     synchronized void removeInactivePlayers() {
-        gameThreads.forEach((thread) -> {
-            if (thread.getThreadGroup() == null) gameThreads.remove(thread);
-        });
+        synchronized (gameThreads) {
+            for (Iterator<GameThread> iterator = gameThreads.iterator(); iterator.hasNext();) {
+                GameThread gt = iterator.next();
+                if (gt.getThreadGroup() == null) {
+                    iterator.remove();
+                }
+            }
+        }
     }
 
     String getGameName() {
@@ -96,6 +109,7 @@ public class Game implements Runnable {
     }
 
     int getCurrentPlayers() {
+        removeInactivePlayers();
         return currentPlayers;
     }
 
@@ -184,5 +198,9 @@ public class Game implements Runnable {
         return sqrt(pow(abs(field.x - f.x), 2) +
                         pow(abs(field.y - f.y), 2)
                     );
+    }
+
+    public String getGameMaster() {
+        return gameMaster;
     }
 }

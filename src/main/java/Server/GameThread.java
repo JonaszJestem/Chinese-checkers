@@ -69,7 +69,7 @@ public class GameThread extends Thread {
                     System.out.println("Thread " + id + ": After wait");
 
                 }
-
+                if(!clientSocket.isConnected()) quit();
                 System.out.println("Thread " + id + ": " + server.getMovingPlayer() + " " +id);
 
                 if (server.getMovingPlayer() == id) {
@@ -85,15 +85,25 @@ public class GameThread extends Thread {
                             System.out.println(line);
                             sendMoveToServer(line);
                         }
+                        if ((line.startsWith("QUIT"))) {
+                            System.out.println("Connection lost");
+                            Thread.currentThread().interrupt();
+                        }
                     }
                 }
                 outputStream.flush();
             }
             catch (Exception e) {
                 System.out.println("Connection lost");
+                Thread.currentThread().interrupt();
                 break;
             }
         }
+    }
+
+    private void quit() {
+        System.out.println("Connection lost");
+        Thread.currentThread().interrupt();
     }
 
     private void sendMapToClient() {
