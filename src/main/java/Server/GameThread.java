@@ -3,6 +3,7 @@ package Server;
 import Map.ColorEnum;
 import Map.Field;
 
+import java.awt.*;
 import java.io.*;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,6 +18,7 @@ public class GameThread extends Thread {
     private ColorEnum clientColor;
     private ConcurrentHashMap<Field, ColorEnum> map = new ConcurrentHashMap<>();
     private final int id;
+
 
     GameThread(Socket clientSocket, Game server, int id) {
         this.clientSocket = clientSocket;
@@ -43,16 +45,26 @@ public class GameThread extends Thread {
                 clientColor = server.getColor();
                 outputStream.writeBytes(clientColor.toString() + "\n");
             }
+
+            map = server.getMap();
+
+            outputStream.writeBytes("MAP\n");
+            sendMapToClient();
+            outputStream.writeBytes("END\n");
+
         } catch (IOException ex) {
-            System.out.println("Couldn't send color to client");
+            System.out.println("Couldn't set up gamer");
             this.interrupt();
             return;
         }
+
+
 
         while (true) {
             try {
 
                 synchronized (server.map) {
+
                     map = server.getMap();
 
                     outputStream.writeBytes("MAP\n");
@@ -62,6 +74,7 @@ public class GameThread extends Thread {
                     System.out.println("Thread " + id + ": Before wait");
                     server.map.wait();
                     System.out.println("Thread " + id + ": After wait");
+
                 }
 
                 System.out.println("Thread " + id + ": " + server.getMovingPlayer() + " " +id);
@@ -82,7 +95,7 @@ public class GameThread extends Thread {
                 outputStream.flush();
             }
             catch (Exception e) {
-                e.printStackTrace();
+                System.out.println("Connection lost");
                 break;
             }
         }
@@ -107,10 +120,17 @@ public class GameThread extends Thread {
             Field to = new Field(Integer.parseInt(move[3]), Integer.parseInt(move[4]));
             if (server.move(from, to, ColorEnum.valueOf(move[5]))) {
                 System.out.println("Thread " + id + ": succesful");
-                outputStream.writeBytes("SUCCESFUL\n");
+                outputStream.writeBytes("SUCCESSFUL\n");
+
+                map = server.getMap();
+
+                outputStream.writeBytes("MAP\n");
+                sendMapToClient();
+                outputStream.writeBytes("END\n");
+
             } else {
                 System.out.println("Thread " + id + ":Wrong move");
-                outputStream.writeBytes("WRONGMOVE\n");
+                outputStream.writeBytes("MOVE\n");
             }
             outputStream.flush();
         } catch (IOException ex) {

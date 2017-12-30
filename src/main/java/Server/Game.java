@@ -61,7 +61,7 @@ public class Game implements Runnable {
         map.buildWithPlayers(maxPlayers);
 
         while (true) {
-            removeInactivePlayers();
+//            removeInactivePlayers();
             if (maxPlayers == currentPlayers) startGame();
             System.out.println("Waiting for connection");
             try {
@@ -125,7 +125,7 @@ public class Game implements Runnable {
 
     public synchronized boolean move(Field from, Field to, ColorEnum playersColor) {
         synchronized (map) {
-            ColorEnum color = getMap().get(from);
+            ColorEnum color = map.getFieldList().get(from);
             System.out.println("Players: " + playersColor + " tile: " + color);
             if (playersColor != color) {
                 System.out.println("Moving with wrong color");
@@ -136,8 +136,12 @@ public class Game implements Runnable {
             if (distance(from, to) < 80) {
                 if (distance(from, to) <= 45) {
                     System.out.println("single move");
+                    System.out.println("Field before: " + map.getFieldList().get(from));
                     map.getFieldList().put(from, ColorEnum.WHITE);
+                    System.out.println("Field after: " + map.getFieldList().get(from));
+                    System.out.println("Field before: " + map.getFieldList().get(to));
                     map.getFieldList().put(to, color);
+                    System.out.println("Field after: " + map.getFieldList().get(to));
                     movingPlayer = (movingPlayer + 1) % maxPlayers;
                     System.out.println("Notifying " + movingPlayer);
                     map.notifyAll();

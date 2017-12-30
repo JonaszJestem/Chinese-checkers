@@ -1,5 +1,8 @@
 package Client;
 
+import Map.ColorEnum;
+import Map.Field;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -41,13 +44,11 @@ public class GameGUI extends JFrame {
             super.paint(g);
             Graphics2D g2d = (Graphics2D) g;
 
-            synchronized (gamer.map) {
-                gamer.map.forEach((k, v) -> {
-                    g2d.setColor(v.getRGBColor());
-                    g2d.draw(k);
-                    g2d.fill(k);
-                });
-            }
+            gamer.getFieldList().forEach((k, v) -> {
+                g2d.setColor(v.getRGBColor());
+                g2d.draw(k);
+                g2d.fill(k);
+            });
         }
     }
 
@@ -65,7 +66,27 @@ public class GameGUI extends JFrame {
         public void mouseReleased(MouseEvent e) {
             moveTo = e.getPoint();
             System.out.println(moveTo);
-            if (moveFrom != null && moveTo != null) gamer.sendMove(moveFrom, moveTo);
+
+            System.out.println("In send move");
+            if(moveTo != null && moveFrom != null) sendMove(moveFrom, moveTo);
+            moveFrom = null; moveTo = null;
+        }
+
+        private void sendMove(Point moveFrom, Point moveTo) {
+            synchronized (gamer.map) {
+                for(Field f: gamer.map.keySet()) {
+                    if (f.contains(moveFrom)) gamer.from = f;
+                    if (f.contains(moveTo)) gamer.to = f;
+                }
+
+                if (gamer.from != null && gamer.to != null) {
+                    System.out.println(gamer.from + " " + gamer.to);
+                    System.out.println(gamer.map.get(gamer.to) == ColorEnum.WHITE);
+                    System.out.println(gamer.map.get(gamer.from));
+                    System.out.println("Sending move");
+                    gamer.gameWriter.println("MOVE " + gamer.from.x_int + " " + gamer.from.y_int + " " + gamer.to.x_int + " " + gamer.to.y_int + " " + gamer.myColor);
+                }
+            }
         }
     }
 }

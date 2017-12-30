@@ -41,7 +41,7 @@ class ServerThread extends Thread {
                 }
                 clientOutputStream.flush();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("Connection lost");
                 return;
             }
         }
