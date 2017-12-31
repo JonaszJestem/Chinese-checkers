@@ -15,10 +15,6 @@ public abstract class Map {
         return fieldList;
     }
 
-    public void setFieldList(ConcurrentHashMap<Field, ColorEnum> newFieldList) {
-        newFieldList.forEach((k, v) -> this.fieldList.put(k, v));
-    }
-
     public int getFieldSize() {
         return fieldSize;
     }
