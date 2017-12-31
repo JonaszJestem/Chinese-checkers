@@ -9,7 +9,7 @@ public class Field extends Ellipse2D.Double {
     private int id;
     public int x_int;
     public int y_int;
-    private int size = 30;
+    public int size = 30;
     public ColorEnum endPoint = ColorEnum.WHITE;
     public Point2D middle;
 
