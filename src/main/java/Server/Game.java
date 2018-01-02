@@ -4,6 +4,7 @@ import Map.ColorEnum;
 import Map.Field;
 import Map.Map;
 import Map.Star;
+import Server.Bot.Bot;
 
 import java.awt.*;
 import java.io.IOException;
@@ -224,5 +225,10 @@ public class Game implements Runnable {
 
     public String getGameMaster() {
         return gameMaster;
+    }
+
+    public void addBot() {
+        Bot bot = new Bot("localhost", this.port);
+        new Thread(bot).start();
     }
 }

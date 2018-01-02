@@ -46,20 +46,30 @@ class GameThread extends Thread {
         } catch (IOException ex) {
             cleanUp();
         }
+/*
+        while(true) {
+            try {
+                line = reader.readLine();
 
+                if(line.equalsIgnoreCase("ADDBOT")) server.addBot();
+                else if(line.equalsIgnoreCase("READY")) break;
 
-
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+*/
         while (true) {
             try {
-
                 synchronized (server.map) {
-
                     map = server.getMap();
 
                     outputStream.writeBytes("MAP\n");
                     sendMapToClient();
                     outputStream.writeBytes(server.getMovingColor().toString() + "\n");
+
                     server.map.wait();
+
                     if(server.matchEnded) {
                         endMatch();
                     }
@@ -86,6 +96,7 @@ class GameThread extends Thread {
                     }
                 }
                 outputStream.flush();
+
             }
             catch (Exception e) {
                 cleanUp();

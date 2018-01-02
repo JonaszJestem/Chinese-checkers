@@ -6,9 +6,7 @@ import Map.Field;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 
 class GameGUI extends JFrame {
     private final Gamer gamer;
@@ -44,6 +42,9 @@ class GameGUI extends JFrame {
     class GameInfo extends JPanel {
         final JLabel myColor = new JLabel("My Color");
         final JLabel currentColor = new JLabel("Current Color");
+        final JLabel currentPlayers = new JLabel("-/-");
+        final JButton addBotPlayer = new JButton("Add bot");
+        final JButton ready = new JButton("Ready");
 
         GameInfo() {
             setBackground(Color.DARK_GRAY);
@@ -53,8 +54,14 @@ class GameGUI extends JFrame {
             currentColor.setOpaque(true);
             if(gamer.currentColor!=null)currentColor.setBackground(gamer.currentColor.getRGBColor());
 
+            addBotPlayer.addActionListener(e -> gamer.gameWriter.println("ADDBOT"));
+            ready.addActionListener(e -> gamer.gameWriter.println("READY"));
+
             add(myColor);
             add(currentColor);
+            add(currentPlayers);
+            add(addBotPlayer);
+            add(ready);
             setVisible(true);
         }
 

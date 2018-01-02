@@ -98,7 +98,7 @@ public class Gamer implements Runnable {
     private void getMap() {
         synchronized (map) {
             try {
-                map.clear();
+                //map.clear();
                 String line;
                 while (true) {
                     line = gameReader.readLine();
