@@ -49,4 +49,8 @@ public class Field extends Ellipse2D.Double {
     public int getId() {
         return id;
     }
+
+    public int getSize() {
+        return size;
+    }
 }

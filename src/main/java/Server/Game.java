@@ -196,7 +196,7 @@ public class Game implements Runnable {
 
         //If checker goes into endPoints area, counter is increased by one for this player
         if(!from.isEndPoint(playersColor) && to.isEndPoint(playersColor)){
-            if(atEndPoints.get(playersColor) >= 9) won = true;
+            if(atEndPoints.get(playersColor) >= 10) won = true;
             atEndPoints.put(playersColor, atEndPoints.get(playersColor)+1);
         }
 
