@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -33,6 +34,7 @@ public class Game implements Runnable {
     private final List<GameThread> gameThreads = new ArrayList<>();
     private int currentPlayers = 0;
     private int movingPlayer = 0;
+    private HashMap<ColorEnum, Integer> atEndPoints = new HashMap<>();
     String gameMaster;
 
     Game(String gameName, int maxPlayers) {
@@ -42,6 +44,13 @@ public class Game implements Runnable {
         this.port = 50000 + gameID;
         map = new Star();
         map.buildWithPlayers(maxPlayers);
+        atEndPoints.clear();
+        atEndPoints.put(ColorEnum.YELLOW, 0);
+        atEndPoints.put(ColorEnum.BLACK, 0);
+        atEndPoints.put(ColorEnum.BLUE, 0);
+        atEndPoints.put(ColorEnum.RED, 0);
+        atEndPoints.put(ColorEnum.GREEN, 0);
+        atEndPoints.put(ColorEnum.PURPLE, 0);
     }
 
     Game(String gameName, int maxPlayers, String gameMaster) {
@@ -62,7 +71,7 @@ public class Game implements Runnable {
         }
         IS_RUNNING = true;
 
-        map.buildWithPlayers(maxPlayers);
+        //map.buildWithPlayers(maxPlayers);
 
         while (true) {
             removeInactivePlayers();
@@ -148,6 +157,9 @@ public class Game implements Runnable {
             }
             System.out.println("Got move from player:" + from + " " + to + " " + playersColor);
             System.out.println("Distance: " + distance(from, to));
+
+            //If checker wants to go out from endPoints area, return false
+            if(from.isEndPoint(playersColor) && !to.isEndPoint(playersColor)) return false;
             if (distance(from, to) < 80) {
                 if (distance(from, to) <= 45) {
                     System.out.println("single move");
@@ -160,6 +172,11 @@ public class Game implements Runnable {
                     movingPlayer = (movingPlayer + 1) % maxPlayers;
                     System.out.println("Notifying " + movingPlayer);
                     map.notifyAll();
+
+                    //If checker goes into endPoints area, counter is increased by one for this player
+                    if(!from.isEndPoint(playersColor) && to.isEndPoint(playersColor)){
+                        atEndPoints.put(playersColor, atEndPoints.get(playersColor)+1);
+                    }
                     return true;
                 } else if (distance(from, to) <= 80) {
                     System.out.println("doublemove");
@@ -171,6 +188,11 @@ public class Game implements Runnable {
                             movingPlayer = (movingPlayer + 1) % maxPlayers;
                             System.out.println("Notifying " + movingPlayer);
                             map.notifyAll();
+
+                            //If checker goes into endPoints area, counter is increased by one for this player
+                            if(!from.isEndPoint(playersColor) && to.isEndPoint(playersColor)){
+                                atEndPoints.put(playersColor, atEndPoints.get(playersColor)+1);
+                            }
                             return true;
                         }
                     }
