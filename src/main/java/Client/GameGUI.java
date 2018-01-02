@@ -8,19 +8,13 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 
-import static java.lang.Math.abs;
-import static java.lang.StrictMath.pow;
-import static java.lang.StrictMath.sqrt;
-
-public class GameGUI extends JFrame {
-    private Gamer gamer;
-    private MoveAdapter moveAdapter = new MoveAdapter();
-    Point moveFrom;
-    Point moveTo;
-    Object lock = new Object();
-    GameInfo gameInfo;
+class GameGUI extends JFrame {
+    private final Gamer gamer;
+    private final MoveAdapter moveAdapter = new MoveAdapter();
+    private Point moveFrom;
+    private final Object lock = new Object();
+    private final GameInfo gameInfo;
 
     GameGUI(Gamer gamer) {
         this.gamer = gamer;
@@ -47,8 +41,8 @@ public class GameGUI extends JFrame {
     }
 
     class GameInfo extends JPanel {
-        JLabel myColor = new JLabel("My Color");
-        JLabel currentColor = new JLabel("Current Color");;
+        final JLabel myColor = new JLabel("My Color");
+        final JLabel currentColor = new JLabel("Current Color");
 
         GameInfo() {
             setBackground(Color.DARK_GRAY);
@@ -63,7 +57,7 @@ public class GameGUI extends JFrame {
             setVisible(true);
         }
 
-        public void setCurrentColor() {
+        void setCurrentColor() {
             if(gamer.currentColor!=null) currentColor.setBackground(gamer.currentColor.getRGBColor());
         }
     }
@@ -107,17 +101,16 @@ public class GameGUI extends JFrame {
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            moveTo = e.getPoint();
+            Point moveTo = e.getPoint();
             System.out.println(moveTo);
 
             synchronized (lock) {
-                if (moveTo != null && moveFrom != null) {
+                if (moveFrom != null) {
                     System.out.println("In send move");
                     disableMoving();
                     sendMove(moveFrom, moveTo);
                 }
                 moveFrom = null;
-                moveTo = null;
             }
         }
 

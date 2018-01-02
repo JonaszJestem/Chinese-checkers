@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Map {
-    protected ConcurrentHashMap<Field, ColorEnum> fieldList = new ConcurrentHashMap<>();
-    protected int fieldSize = 30;
-    protected int width = 500;
-    protected int height = 510;
-    protected ArrayList<ColorEnum> availableColors = new ArrayList<ColorEnum>();
+    final ConcurrentHashMap<Field, ColorEnum> fieldList = new ConcurrentHashMap<>();
+    final int fieldSize = 30;
+    final int width = 500;
+    final int height = 510;
+    final ArrayList<ColorEnum> availableColors = new ArrayList<>();
 
     public ConcurrentHashMap<Field, ColorEnum> getFieldList() {
         return fieldList;

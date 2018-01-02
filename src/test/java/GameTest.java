@@ -11,13 +11,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GameTest {
     private static Server s;
-    private static Thread st;
-    private static ArrayList<ClientThread> clients = new ArrayList<>();
+    private static final ArrayList<ClientThread> clients = new ArrayList<>();
 
     @BeforeClass
     public static void setUpServer() {
         s = new Server();
-        st = new Thread(s);
+        Thread st = new Thread(s);
         st.start();
 
         while (!s.isRunning()) {
@@ -72,13 +71,4 @@ public class GameTest {
         assertEquals(c2.gamer.getFieldList(), s.getGame(0).map.getFieldList());
     }
 
-    //@Test
-    public void gamerShouldBeAbleToMove() {
-        Client c1 = clients.get(0).getClient();
-        Client c2 = clients.get(1).getClient();
-
-
-        assertEquals(c1.gamer.map, s.getGame(0).map.getFieldList());
-        assertEquals(c2.gamer.map, s.getGame(0).map.getFieldList());
-    }
 }

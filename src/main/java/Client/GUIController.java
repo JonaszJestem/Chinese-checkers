@@ -16,9 +16,10 @@ import static java.lang.Math.random;
 import static java.lang.StrictMath.floor;
 
 
+@SuppressWarnings("WeakerAccess")
 public class GUIController {
     @FXML
-    private Client client = new Client(); //TODO ok???
+    private final Client client = new Client(); //TODO ok???
     @FXML
     private AnchorPane loginScreen;
     @FXML
@@ -40,8 +41,7 @@ public class GUIController {
     @FXML
     private Text numOfClients;
 
-    private ObservableList<Integer> possiblePlayersItems = FXCollections.observableArrayList(2,3,4,6);
-    private ObservableList<String> games = FXCollections.observableArrayList();
+    private final ObservableList<Integer> possiblePlayersItems = FXCollections.observableArrayList(2,3,4,6);
 
 
     //TODO Implement closing GUI before login when client isn't instantiated yet (???) SEE: declaration of Client variable
@@ -52,6 +52,7 @@ public class GUIController {
                     client.disconnect();
                 client.socket.close();
             }
+            System.exit(1);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -77,6 +78,7 @@ public class GUIController {
             gamesList.setVisible(true);
         } catch (IOException e) {
             connectionError.setVisible(true);
+            loginScreen.setVisible(true);
         }
     }
 
@@ -92,7 +94,7 @@ public class GUIController {
     @FXML
     protected void handleGettingGames() {
         client.getGamesFromServer();
-        games = FXCollections.observableArrayList(client.getGames());
+        ObservableList<String> games = FXCollections.observableArrayList(client.getGames());
         gameList.setItems(games);
 
         numOfClients.setText("Current clients: " + client.currentClients);
@@ -107,7 +109,10 @@ public class GUIController {
 
     @FXML
     private void handleCreateGameButton() {
-        client.addGame(nameOfGame.getText(), possiblePlayers.getSelectionModel().getSelectedItem());
+        if(possiblePlayers.getSelectionModel().getSelectedItem() == null) return;
+        String gameName = nameOfGame.getText().trim();
+        if(gameName.length() == 0) return;
+        client.addGame(gameName, possiblePlayers.getSelectionModel().getSelectedItem());
         gameCreator.setVisible(false);
         handleGettingGames();
         gamesList.setVisible(true);

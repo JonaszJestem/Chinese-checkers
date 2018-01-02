@@ -3,26 +3,24 @@ package Client;
 import Map.ColorEnum;
 import Map.Field;
 
-import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
+
 
 public class Gamer implements Runnable {
     private final String serverIP;
     private final int port;
-    private Socket gameSocket;
-    public volatile ConcurrentHashMap<Field, ColorEnum> map;
+    public final ConcurrentHashMap<Field, ColorEnum> map;
     PrintWriter gameWriter;
-    BufferedReader gameReader;
+    private BufferedReader gameReader;
     ColorEnum myColor, currentColor;
     private GameGUI gameGUI;
     Field from = null, to = null;
-    String line;
+    private String line;
 
 
     Gamer(String serverIP, int port) {
@@ -34,7 +32,7 @@ public class Gamer implements Runnable {
     @Override
     public void run() {
         try {
-            gameSocket = new Socket(serverIP, port);
+            Socket gameSocket = new Socket(serverIP, port);
             gameReader = new BufferedReader(new InputStreamReader(gameSocket.getInputStream()));
             gameWriter = new PrintWriter(gameSocket.getOutputStream(), true);
             getMyColor();
@@ -117,7 +115,6 @@ public class Gamer implements Runnable {
     }
 
     public synchronized ConcurrentHashMap<Field, ColorEnum> getFieldList() {
-        ConcurrentHashMap<Field, ColorEnum> copyMap = map;
-        return copyMap;
+        return map;
     }
 }

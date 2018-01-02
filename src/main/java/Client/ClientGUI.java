@@ -17,8 +17,8 @@ public class ClientGUI extends Application {
     public void start(Stage primaryStage) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/ClientGUI.fxml"));
         Parent root = loader.load();
+        Scene scene = new Scene(root, 600, 400);
 
-        Scene scene = new Scene(root);
         primaryStage.setTitle("Chinese checkers");
         primaryStage.setScene(scene);
 

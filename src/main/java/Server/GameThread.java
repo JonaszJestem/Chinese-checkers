@@ -3,18 +3,14 @@ package Server;
 import Map.ColorEnum;
 import Map.Field;
 
-import java.awt.*;
 import java.io.*;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class GameThread extends Thread {
-    private Socket clientSocket;
-    private Game server;
-    private InputStream inputStream;
-    private BufferedReader reader;
+class GameThread extends Thread {
+    private final Socket clientSocket;
+    private final Game server;
     private DataOutputStream outputStream;
-    private String line;
     ColorEnum clientColor;
     private ConcurrentHashMap<Field, ColorEnum> map = new ConcurrentHashMap<>();
     private final int id;
@@ -29,16 +25,17 @@ public class GameThread extends Thread {
     public void run() {
         System.out.println("Found gamer");
 
+        BufferedReader reader;
         try {
-            inputStream = clientSocket.getInputStream();
+            InputStream inputStream = clientSocket.getInputStream();
             reader = new BufferedReader(new InputStreamReader(inputStream));
             outputStream = new DataOutputStream(clientSocket.getOutputStream());
         } catch (IOException e) {
-            System.out.println("Disconnected");
-            this.interrupt();
+            cleanUp();
             return;
         }
 
+        String line;
         try {
             line = reader.readLine();
             if ((line.equalsIgnoreCase("GETCOLOR"))) {
@@ -47,9 +44,7 @@ public class GameThread extends Thread {
             }
 
         } catch (IOException ex) {
-            System.out.println("Couldn't set up gamer");
-            this.interrupt();
-            return;
+            cleanUp();
         }
 
 
@@ -69,7 +64,7 @@ public class GameThread extends Thread {
                     System.out.println("Thread " + id + ": After wait");
 
                 }
-                if(!clientSocket.isConnected()) quit();
+                if(!clientSocket.isConnected()) cleanUp();
                 System.out.println("Thread " + id + ": " + server.getMovingPlayer() + " " +id);
 
                 if (server.getMovingPlayer() == id) {
@@ -94,16 +89,10 @@ public class GameThread extends Thread {
                 outputStream.flush();
             }
             catch (Exception e) {
-                System.out.println("Connection lost");
-                Thread.currentThread().interrupt();
+                cleanUp();
                 break;
             }
         }
-    }
-
-    private void quit() {
-        System.out.println("Connection lost");
-        Thread.currentThread().interrupt();
     }
 
     private void sendMapToClient() {
@@ -113,7 +102,7 @@ public class GameThread extends Thread {
             try {
                 outputStream.writeBytes(k.x_int + " " + k.y_int + " " + v.getColor() + "\n");
             } catch (IOException e) {
-                e.printStackTrace();
+                cleanUp();
             }
         });
     }
@@ -142,7 +131,13 @@ public class GameThread extends Thread {
             }
             outputStream.flush();
         } catch (IOException ex) {
-            System.out.println("Can't send move to server");
+            cleanUp();
         }
+    }
+
+    private void cleanUp() {
+        System.out.println("Connection lost");
+        Thread.currentThread().interrupt();
+        server.removeInactivePlayers();
     }
 }

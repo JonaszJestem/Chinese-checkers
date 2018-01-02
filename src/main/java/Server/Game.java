@@ -10,8 +10,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -32,7 +30,7 @@ public class Game implements Runnable {
     boolean IS_RUNNING = false;
     private ServerSocket gameServerSocket;
     private Socket clientSocket;
-    private volatile List<GameThread> gameThreads = new ArrayList<>();
+    private final List<GameThread> gameThreads = new ArrayList<>();
     private int currentPlayers = 0;
     private int movingPlayer = 0;
     String gameMaster;
@@ -55,7 +53,6 @@ public class Game implements Runnable {
     public void run() {
         if (IS_RUNNING) return;
 
-        gameThreads = Collections.synchronizedList(gameThreads);
         try {
             gameServerSocket = new ServerSocket(port);
             System.out.println("Created game with id: " + gameID);
@@ -87,12 +84,7 @@ public class Game implements Runnable {
 
     synchronized void removeInactivePlayers() {
         synchronized (gameThreads) {
-            for (Iterator<GameThread> iterator = gameThreads.iterator(); iterator.hasNext();) {
-                GameThread gt = iterator.next();
-                if (gt.getThreadGroup() == null) {
-                    iterator.remove();
-                }
-            }
+            gameThreads.removeIf(gt -> gt.isInterrupted());
         }
     }
 

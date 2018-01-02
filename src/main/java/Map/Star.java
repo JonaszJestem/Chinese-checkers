@@ -7,14 +7,19 @@ public class Star extends Map {
     @Override
     public void buildWithPlayers(int maxPlayers) {
         System.out.println("Building with " + maxPlayers);
-        if (maxPlayers == 6) {
-            makeSixPlayers();
-        } else if (maxPlayers == 4) {
-            makeFourPlayers();
-        } else if (maxPlayers == 3) {
-            makeThreePlayers();
-        } else if (maxPlayers == 2) {
-            makeTwoPlayers();
+        switch (maxPlayers) {
+            case 6:
+                makeSixPlayers();
+                break;
+            case 4:
+                makeFourPlayers();
+                break;
+            case 3:
+                makeThreePlayers();
+                break;
+            case 2:
+                makeTwoPlayers();
+                break;
         }
     }
 

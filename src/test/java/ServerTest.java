@@ -11,13 +11,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ServerTest {
     private static Server s;
-    private static Thread st;
-    private static ArrayList<ClientThread> clients = new ArrayList<>();
+    private static final ArrayList<ClientThread> clients = new ArrayList<>();
 
     @BeforeClass
     public static void setUpServer() {
         s = new Server();
-        st = new Thread(s);
+        Thread st = new Thread(s);
         st.start();
 
         while (!s.isRunning()) {

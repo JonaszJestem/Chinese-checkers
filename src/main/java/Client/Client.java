@@ -20,7 +20,7 @@ public class Client {
 
     Socket socket;
     //User stored variables
-    private ArrayList<String> games = new ArrayList<>();
+    private final ArrayList<String> games = new ArrayList<>();
     private String userName;
 
 
@@ -92,7 +92,6 @@ public class Client {
             String line = bufferedReader.readLine();
             if (line.startsWith("YES")) {
                 this.gamer = new Gamer(serverIP, 50000 + id);
-
                 new Thread(gamer).start();
                 isInGame = true;
             }

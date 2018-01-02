@@ -4,17 +4,15 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class Server implements Runnable {
     private ServerSocket serverSocket;
-    private final int PORT = 8000;
     private Socket clientSocket;
     private boolean IS_RUNNING = false;
 
-    private volatile List<ServerThread> serverThreads = new ArrayList<>();
-    private volatile List<Game> gamesList = new ArrayList<>();
+    private final List<ServerThread> serverThreads = new ArrayList<>();
+    private final List<Game> gamesList = new ArrayList<>();
 
     public static void main(String[] args) {
         new Thread(new Server()).start();
@@ -22,6 +20,7 @@ public class Server implements Runnable {
 
     public void run() {
         try {
+            int PORT = 8000;
             serverSocket = new ServerSocket(PORT);
             Game.gameCounter = 0;
         } catch (IOException e) {
@@ -46,14 +45,9 @@ public class Server implements Runnable {
         }
     }
 
-    private synchronized void removeInactivePlayers() {
+    synchronized void removeInactivePlayers() {
         synchronized (serverThreads) {
-            for (Iterator<ServerThread> iterator = serverThreads.iterator(); iterator.hasNext();) {
-                ServerThread st = iterator.next();
-                if (st.getThreadGroup() == null) {
-                    iterator.remove();
-                }
-            }
+            serverThreads.removeIf(st -> st.getThreadGroup() == null);
         }
     }
 

@@ -6,11 +6,10 @@ import java.awt.geom.Point2D;
 
 public class Field extends Ellipse2D.Double {
     private static int fieldsCounter = 0;
-    private int id;
-    public int x_int;
-    public int y_int;
+    public final int x_int;
+    public final int y_int;
     public int size = 30;
-    public Point2D middle;
+    public final Point2D middle;
 
     public Field(int x, int y) {
         this.x_int = x;
@@ -21,7 +20,6 @@ public class Field extends Ellipse2D.Double {
         this.width = size;
         this.middle = new Point(this.x_int + size/2, this.y_int + size/2);
 
-        this.id = fieldsCounter;
         fieldsCounter++;
     }
 
@@ -40,7 +38,4 @@ public class Field extends Ellipse2D.Double {
         return Integer.parseInt(String.valueOf(x_int) + String.valueOf(y_int));
     }
 
-    public int getId() {
-        return id;
-    }
 }

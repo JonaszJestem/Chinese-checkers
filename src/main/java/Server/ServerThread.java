@@ -4,10 +4,9 @@ import java.io.*;
 import java.net.Socket;
 
 class ServerThread extends Thread {
-    private Socket clientSocket;
-    private Server server;
+    private final Socket clientSocket;
+    private final Server server;
 
-    private InputStream clientInputStream;
     private DataOutputStream clientOutputStream;
     private BufferedReader clientReader;
     private String userName;
@@ -20,11 +19,11 @@ class ServerThread extends Thread {
     public void run() {
         System.out.println("Found client");
         try {
-            clientInputStream = clientSocket.getInputStream();
+            InputStream clientInputStream = clientSocket.getInputStream();
             clientReader = new BufferedReader(new InputStreamReader(clientInputStream));
             clientOutputStream = new DataOutputStream(clientSocket.getOutputStream());
         } catch (IOException e) {
-            e.printStackTrace();
+            cleanUp();
         }
 
         while (true) {
@@ -39,15 +38,14 @@ class ServerThread extends Thread {
                 } else if ((line.startsWith("USERNAME"))) {
                     setUserName(line);
                 } else if ((line.equalsIgnoreCase("QUIT"))) {
-                    Thread.currentThread().interrupt();
+                    cleanUp();
                     break;
                 } else if ((line.startsWith("DELETE"))) {
                     deleteGame(line);
                 }
                 clientOutputStream.flush();
             } catch (IOException e) {
-                System.out.println("Connection lost");
-                Thread.currentThread().interrupt();
+                cleanUp();
                 return;
             }
         }
@@ -66,15 +64,14 @@ class ServerThread extends Thread {
     private void joinGame(String line) {
         String[] game = line.split(" ");
         Game g = server.getGame(Integer.parseInt(game[1]));
-        //TODO: Concurrent modification
-        //g.removeInactivePlayers();
+        g.removeInactivePlayers();
         try {
             if (g.getMaxPlayers() > g.getCurrentPlayers()) {
                 if (!g.IS_RUNNING) server.runGame(g.getGameID());
                 clientOutputStream.writeBytes("YES\n");
             } else clientOutputStream.writeBytes("NO\n");
         } catch (IOException e) {
-            e.printStackTrace();
+            cleanUp();
         }
     }
 
@@ -88,20 +85,26 @@ class ServerThread extends Thread {
         try {
             clientOutputStream.writeBytes(gamesList + "\n");
         } catch (IOException e) {
-            e.printStackTrace();
+            cleanUp();
         }
     }
 
     private String buildGamesList() {
         StringBuilder sb = new StringBuilder();
         for (Game g : server.getGames()) {
-            sb.append(g.getGameID() + " ");
-            sb.append(g.getGameName() + " ");
-            sb.append(g.getGameMaster() + " ");
-            sb.append(g.getCurrentPlayers() + " ");
-            sb.append(g.getMaxPlayers() + ";");
+            sb.append(g.getGameID()).append(" ");
+            sb.append(g.getGameName()).append(" ");
+            sb.append(g.getGameMaster()).append(" ");
+            sb.append(g.getCurrentPlayers()).append(" ");
+            sb.append(g.getMaxPlayers()).append(";");
         }
-        sb.append("CurrentPlayers " + server.getNumOfPlayers());
+        sb.append("CurrentPlayers ").append(server.getNumOfPlayers());
         return sb.toString();
+    }
+
+    private void cleanUp() {
+        System.out.println("Connection lost");
+        Thread.currentThread().interrupt();
+        server.removeInactivePlayers();
     }
 }
