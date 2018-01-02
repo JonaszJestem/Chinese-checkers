@@ -59,7 +59,7 @@ public class Gamer implements Runnable {
                 }
                 else if (line.equalsIgnoreCase("MOVE")) {
                     getMap();
-                    System.out.println("Able to move");
+                    System.out.println("Able to Move");
                     gameGUI.allowMoving();
                     gameGUI.repaint();
                 }
@@ -73,9 +73,8 @@ public class Gamer implements Runnable {
 
     private void applyMove() {
         synchronized (map) {
-            ColorEnum color = map.get(from);
             map.put(from, ColorEnum.WHITE);
-            map.put(to, color);
+            map.put(to, myColor);
         }
         gameGUI.repaint();
     }
@@ -106,7 +105,6 @@ public class Gamer implements Runnable {
                     }
                     map.put(new Field(Integer.parseInt(parameters[0]), Integer.parseInt(parameters[1])), ColorEnum.valueOf(parameters[2]));
                 }
-                System.out.println("Map from getMap clientside: "+map);
             } catch (IOException e) {
                 e.printStackTrace();
             }

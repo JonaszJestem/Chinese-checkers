@@ -8,7 +8,7 @@ public abstract class Map {
     final int fieldSize = 30;
     final int width = 500;
     final int height = 510;
-    final ArrayList<ColorEnum> availableColors = new ArrayList<>();
+    public final ArrayList<ColorEnum> availableColors = new ArrayList<>();
     protected int maxPlayers;
 
     public ConcurrentHashMap<Field, ColorEnum> getFieldList() {
@@ -30,5 +30,5 @@ public abstract class Map {
         return null;
     }
 
-    public abstract void drawColor(ColorEnum colorEnum);
+    protected abstract void drawColor(ColorEnum colorEnum);
 }

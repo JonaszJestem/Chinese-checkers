@@ -1,6 +1,5 @@
 package Map;
 
-import java.awt.*;
 import java.util.Arrays;
 
 public class Star extends Map {
@@ -89,10 +88,12 @@ public class Star extends Map {
         for (int i = 0; i <= 13; i++) {
             for (int j = 0; j < i; j++) {
                 if (i <= 4) {
-                    f = new Field((width / 2) - i * fieldSize / 2 + j * fieldSize, height / fieldSize + i * fieldSize);
-                    f.setEndPoint(ColorEnum.GREEN);
+                    f = new Field((width / 2) - i * fieldSize / 2 + j * fieldSize,
+                            height / fieldSize + i * fieldSize,
+                            fieldSize,
+                            ColorEnum.GREEN);
+                    fieldList.remove(f);
                     fieldList.put(f, ColorEnum.RED);
-
                 }
             }
         }
@@ -104,8 +105,11 @@ public class Star extends Map {
         for (int i = 13; i > 0; i--) {
             for (int j = 0; j < i; j++) {
                 if (i <= 4) {
-                    f = new Field(width / 2 - i * fieldSize / 2 + j * fieldSize, height / fieldSize + row);
-                    f.setEndPoint(ColorEnum.RED);
+                    f = new Field(width / 2 - i * fieldSize / 2 + j * fieldSize,
+                            height / fieldSize + row,
+                            fieldSize,
+                            ColorEnum.RED);
+                    fieldList.remove(f);
                     fieldList.put(f, ColorEnum.GREEN);
                 }
             }
@@ -118,8 +122,8 @@ public class Star extends Map {
         for (int i = 0; i <= 13; i++) {
             for (int j = 0; j < i; j++) {
                 if (i >= 10 && j <= i - 10) {
-                    f = new Field((width / 2) - i * fieldSize / 2 + j * fieldSize, height / fieldSize + i * fieldSize, fieldSize);
-                    f.setEndPoint(ColorEnum.YELLOW);
+                    f = new Field((width / 2) - i * fieldSize / 2 + j * fieldSize, height / fieldSize + i * fieldSize, fieldSize,
+                            ColorEnum.YELLOW);
                     fieldList.put(f, ColorEnum.BLUE);
                 }
             }
@@ -131,8 +135,8 @@ public class Star extends Map {
         for (int i = 0; i <= 13; i++) {
             for (int j = 0; j < i; j++) {
                 if (i >= 10 && j >= 9) {
-                    f = new Field((width / 2) - i * fieldSize / 2 + j * fieldSize, height / fieldSize + i * fieldSize, fieldSize);
-                    f.setEndPoint(ColorEnum.PURPLE);
+                    f = new Field((width / 2) - i * fieldSize / 2 + j * fieldSize, height / fieldSize + i * fieldSize, fieldSize,
+                            ColorEnum.PURPLE);
                     fieldList.put(f, ColorEnum.BLACK);
                 }
             }
@@ -145,8 +149,8 @@ public class Star extends Map {
         for (int i = 13; i > 0; i--) {
             for (int j = 0; j < i; j++) {
                 if (i >= 10 && j >= 9) {
-                    f = new Field(width / 2 - i * fieldSize / 2 + j * fieldSize, height / fieldSize + row, fieldSize);
-                    f.setEndPoint(ColorEnum.BLUE);
+                    f = new Field(width / 2 - i * fieldSize / 2 + j * fieldSize, height / fieldSize + row, fieldSize,
+                            ColorEnum.BLUE);
                     fieldList.put(f, ColorEnum.YELLOW);
                 }
             }
@@ -160,8 +164,8 @@ public class Star extends Map {
         for (int i = 13; i > 0; i--) {
             for (int j = 0; j < i; j++) {
                 if (i >= 10 && i - j >= 10) {
-                    f = new Field(width / 2 - i * fieldSize / 2 + j * fieldSize, height / fieldSize + row, fieldSize);
-                    f.setEndPoint(ColorEnum.BLACK);
+                    f = new Field(width / 2 - i * fieldSize / 2 + j * fieldSize, height / fieldSize + row, fieldSize,
+                            ColorEnum.BLACK);
                     fieldList.put(f, ColorEnum.PURPLE);
                 }
             }

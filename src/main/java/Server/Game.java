@@ -44,13 +44,10 @@ public class Game implements Runnable {
         this.port = 50000 + gameID;
         map = new Star();
         map.buildWithPlayers(maxPlayers);
-        atEndPoints.clear();
-        atEndPoints.put(ColorEnum.YELLOW, 0);
-        atEndPoints.put(ColorEnum.BLACK, 0);
-        atEndPoints.put(ColorEnum.BLUE, 0);
-        atEndPoints.put(ColorEnum.RED, 0);
-        atEndPoints.put(ColorEnum.GREEN, 0);
-        atEndPoints.put(ColorEnum.PURPLE, 0);
+
+        for(ColorEnum c: map.availableColors) {
+            atEndPoints.put(c,0);
+        }
     }
 
     Game(String gameName, int maxPlayers, String gameMaster) {
@@ -71,7 +68,6 @@ public class Game implements Runnable {
         }
         IS_RUNNING = true;
 
-        //map.buildWithPlayers(maxPlayers);
 
         while (true) {
             removeInactivePlayers();
@@ -142,57 +138,45 @@ public class Game implements Runnable {
         }
     }
 
-    public synchronized boolean move(Field from, Field to, ColorEnum playersColor) {
+    public synchronized boolean checkMove(Field from, Field to, ColorEnum playersColor) {
+        System.out.println(atEndPoints);
         synchronized (map) {
-            System.out.println("Map on server while moving" + getMap());
-            System.out.println("Moving on serve: " + from + " -> " + to + " Color: " + playersColor);
+
+            Field fromMap = null, toMap = null;
+            for(Field f: map.getFieldList().keySet()) {
+                if (f.equals(from)) {
+                    fromMap = f;
+                }
+                if (f.equals(to)) {
+                    toMap = f;
+                }
+            }
+
             ColorEnum color = getMap().get(from);
-            System.out.println("Players: " + playersColor + " tile: " + color);
             if (playersColor != color) {
                 System.out.println("Moving with wrong color");
                 return false;
             }
             if(getMap().get(to) != ColorEnum.WHITE) {
                 System.out.println("Field taken");
+                return false;
             }
-            System.out.println("Got move from player:" + from + " " + to + " " + playersColor);
-            System.out.println("Distance: " + distance(from, to));
 
             //If checker wants to go out from endPoints area, return false
-            if(from.isEndPoint(playersColor) && !to.isEndPoint(playersColor)) return false;
+            if(fromMap.isEndPoint(playersColor) && !toMap.isEndPoint(playersColor)) {
+                System.out.println("Going out of endPoints area");
+                return false;
+            }
+
             if (distance(from, to) < 80) {
                 if (distance(from, to) <= 45) {
-                    System.out.println("single move");
-                    System.out.println("Field before: " + getMap().get(from));
-                    getMap().put(from, ColorEnum.WHITE);
-                    System.out.println("Field after: " + getMap().get(from));
-                    System.out.println("Field before: " + getMap().get(to));
-                    getMap().put(to, color);
-                    System.out.println("Field after: " + getMap().get(to));
-                    movingPlayer = (movingPlayer + 1) % maxPlayers;
-                    System.out.println("Notifying " + movingPlayer);
-                    map.notifyAll();
-
-                    //If checker goes into endPoints area, counter is increased by one for this player
-                    if(!from.isEndPoint(playersColor) && to.isEndPoint(playersColor)){
-                        atEndPoints.put(playersColor, atEndPoints.get(playersColor)+1);
-                    }
+                    moveAndNotify(fromMap, toMap, playersColor);
                     return true;
                 } else if (distance(from, to) <= 80) {
-                    System.out.println("doublemove");
                     Point middle = getMiddle(from, to);
                     for (java.util.Map.Entry<Field, ColorEnum> f : getMap().entrySet()) {
                         if (f.getKey().contains(middle) && f.getValue().getColor() != ColorEnum.WHITE) {
-                            getMap().put(from, ColorEnum.WHITE);
-                            getMap().put(to, color);
-                            movingPlayer = (movingPlayer + 1) % maxPlayers;
-                            System.out.println("Notifying " + movingPlayer);
-                            map.notifyAll();
-
-                            //If checker goes into endPoints area, counter is increased by one for this player
-                            if(!from.isEndPoint(playersColor) && to.isEndPoint(playersColor)){
-                                atEndPoints.put(playersColor, atEndPoints.get(playersColor)+1);
-                            }
+                            moveAndNotify(fromMap, toMap, playersColor);
                             return true;
                         }
                     }
@@ -200,6 +184,22 @@ public class Game implements Runnable {
             }
             return false;
         }
+    }
+
+    private void moveAndNotify(Field from, Field to, ColorEnum playersColor) {
+        getMap().put(from, ColorEnum.WHITE);
+        getMap().put(to, playersColor);
+        movingPlayer = (movingPlayer + 1) % maxPlayers;
+
+        //If checker goes into endPoints area, counter is increased by one for this player
+        System.out.println(from.isEndPoint(playersColor));
+        System.out.println(from.isEndPoint(ColorEnum.WHITE));
+        if(!from.isEndPoint(playersColor) && to.isEndPoint(playersColor)){
+            System.out.println("Zwiekszam o 1");
+            atEndPoints.put(playersColor, atEndPoints.get(playersColor)+1);
+        }
+
+        map.notifyAll();
     }
 
     private Point getMiddle(Field f1, Field f2) {

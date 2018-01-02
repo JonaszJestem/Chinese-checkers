@@ -11,7 +11,7 @@ public class Field extends Ellipse2D.Double {
     public final int y_int;
     public int size = 30;
     public final Point2D middle;
-    public ColorEnum endPoint = ColorEnum.WHITE;
+    public ColorEnum endPoint = null;
 
     public Field(int x, int y) {
         this.x_int = x;
@@ -26,13 +26,10 @@ public class Field extends Ellipse2D.Double {
         fieldsCounter++;
     }
 
-    Field(int x, int y, int size) {
+    public Field(int x, int y, int size, ColorEnum endPoint) {
         this(x,y);
         this.size = size;
-    }
-
-    public void setEndPoint(ColorEnum colorEnum){
-        this.endPoint = colorEnum;
+        this.endPoint = endPoint;
     }
 
     public boolean isEndPoint(ColorEnum colorEnum){
