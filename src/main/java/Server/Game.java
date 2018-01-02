@@ -34,6 +34,7 @@ public class Game implements Runnable {
     private final List<GameThread> gameThreads = new ArrayList<>();
     private int currentPlayers = 0;
     private int movingPlayer = 0;
+    boolean matchEnded = false;
     private HashMap<ColorEnum, Integer> atEndPoints = new HashMap<>();
     String gameMaster;
 
@@ -138,7 +139,7 @@ public class Game implements Runnable {
         }
     }
 
-    public synchronized boolean checkMove(Field from, Field to, ColorEnum playersColor) {
+    public synchronized String checkMove(Field from, Field to, ColorEnum playersColor) {
         System.out.println(atEndPoints);
         synchronized (map) {
 
@@ -155,51 +156,58 @@ public class Game implements Runnable {
             ColorEnum color = getMap().get(from);
             if (playersColor != color) {
                 System.out.println("Moving with wrong color");
-                return false;
+                return "WRONG";
             }
             if(getMap().get(to) != ColorEnum.WHITE) {
                 System.out.println("Field taken");
-                return false;
+                return "WRONG";
             }
 
             //If checker wants to go out from endPoints area, return false
             if(fromMap.isEndPoint(playersColor) && !toMap.isEndPoint(playersColor)) {
                 System.out.println("Going out of endPoints area");
-                return false;
+                return "WRONG";
             }
 
             if (distance(from, to) < 80) {
                 if (distance(from, to) <= 45) {
-                    moveAndNotify(fromMap, toMap, playersColor);
-                    return true;
+                    String moveStatus = moveAndNotify(fromMap, toMap, playersColor);
+                    if(moveStatus.equals("WIN")) return "WIN " + playersColor;
+                    return "OK";
                 } else if (distance(from, to) <= 80) {
                     Point middle = getMiddle(from, to);
                     for (java.util.Map.Entry<Field, ColorEnum> f : getMap().entrySet()) {
                         if (f.getKey().contains(middle) && f.getValue().getColor() != ColorEnum.WHITE) {
-                            moveAndNotify(fromMap, toMap, playersColor);
-                            return true;
+                            String moveStatus = moveAndNotify(fromMap, toMap, playersColor);
+                            if(moveStatus.equals("WIN")) return "WIN " + playersColor;
+                            return "OK";
                         }
                     }
                 }
             }
-            return false;
+            return "OK";
         }
     }
 
-    private void moveAndNotify(Field from, Field to, ColorEnum playersColor) {
+    private String moveAndNotify(Field from, Field to, ColorEnum playersColor) {
+        boolean won = false;
         getMap().put(from, ColorEnum.WHITE);
         getMap().put(to, playersColor);
-        movingPlayer = (movingPlayer + 1) % maxPlayers;
 
         //If checker goes into endPoints area, counter is increased by one for this player
-        System.out.println(from.isEndPoint(playersColor));
-        System.out.println(from.isEndPoint(ColorEnum.WHITE));
         if(!from.isEndPoint(playersColor) && to.isEndPoint(playersColor)){
-            System.out.println("Zwiekszam o 1");
+            if(atEndPoints.get(playersColor) >= 9) won = true;
             atEndPoints.put(playersColor, atEndPoints.get(playersColor)+1);
         }
 
+        if(won) {
+            matchEnded = true;
+            map.notifyAll();
+            return "WIN";
+        }
+        movingPlayer = (movingPlayer + 1) % maxPlayers;
         map.notifyAll();
+        return "OK";
     }
 
     private Point getMiddle(Field f1, Field f2) {

@@ -97,17 +97,14 @@ class GameGUI extends JFrame {
         @Override
         public void mousePressed(MouseEvent e) {
             moveFrom = e.getPoint();
-            System.out.println(moveFrom);
         }
 
         @Override
         public void mouseReleased(MouseEvent e) {
             Point moveTo = e.getPoint();
-            System.out.println(moveTo);
 
             synchronized (lock) {
                 if (moveFrom != null) {
-                    System.out.println("In send checkMove");
                     disableMoving();
                     sendMove(moveFrom, moveTo);
                 }
@@ -128,7 +125,7 @@ class GameGUI extends JFrame {
                 }
 
                 if (gamer.from != null && gamer.to != null) {
-                    System.out.println("Sending checkMove: " + gamer.from.x_int + " " + gamer.from.y_int + " " + gamer.to.x_int + " " + gamer.to.y_int + " " + gamer.myColor );
+                    System.out.println("Sending move: " + gamer.from.x_int + " " + gamer.from.y_int + " " + gamer.to.x_int + " " + gamer.to.y_int + " " + gamer.myColor );
                     gamer.gameWriter.println("MOVE " + gamer.from.x_int + " " + gamer.from.y_int + " " + gamer.to.x_int + " " + gamer.to.y_int + " " + gamer.myColor);
                 }
             }

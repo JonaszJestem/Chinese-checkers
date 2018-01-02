@@ -21,6 +21,7 @@ public class Gamer implements Runnable {
     private GameGUI gameGUI;
     Field from = null, to = null;
     private String line;
+    private Socket gameSocket;
 
 
     Gamer(String serverIP, int port) {
@@ -32,7 +33,7 @@ public class Gamer implements Runnable {
     @Override
     public void run() {
         try {
-            Socket gameSocket = new Socket(serverIP, port);
+            gameSocket = new Socket(serverIP, port);
             gameReader = new BufferedReader(new InputStreamReader(gameSocket.getInputStream()));
             gameWriter = new PrintWriter(gameSocket.getOutputStream(), true);
             getMyColor();
@@ -62,6 +63,10 @@ public class Gamer implements Runnable {
                     System.out.println("Able to Move");
                     gameGUI.allowMoving();
                     gameGUI.repaint();
+                } else if(line.startsWith("WIN")) {
+                    System.out.println(line);
+                    gameSocket.close();
+                    return;
                 }
 
                 from = null; to = null;

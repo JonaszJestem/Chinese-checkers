@@ -60,6 +60,9 @@ class GameThread extends Thread {
                     sendMapToClient();
                     outputStream.writeBytes(server.getMovingColor().toString() + "\n");
                     server.map.wait();
+                    if(server.matchEnded) {
+                        endMatch();
+                    }
                 }
                 if(!clientSocket.isConnected()) cleanUp();
 
@@ -91,6 +94,22 @@ class GameThread extends Thread {
         }
     }
 
+    private void endMatch() {
+        try {
+            outputStream.writeBytes("WIN " + server.getMovingColor());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                clientSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            cleanUp();
+        }
+    }
+
     private void sendMapToClient() {
         map.forEach((k, v) -> {
             try {
@@ -108,8 +127,8 @@ class GameThread extends Thread {
             Field from = new Field(Integer.parseInt(move[1]), Integer.parseInt(move[2]));
             Field to = new Field(Integer.parseInt(move[3]), Integer.parseInt(move[4]));
 
-
-            if (server.checkMove(from, to, ColorEnum.valueOf(move[5]))) {
+            String serverResponse = server.checkMove(from, to, ColorEnum.valueOf(move[5]));
+            if (serverResponse.equalsIgnoreCase("OK")) {
                 System.out.println("Thread " + id + ": succesful");
                 outputStream.writeBytes("SUCCESSFUL\n");
 
@@ -119,11 +138,14 @@ class GameThread extends Thread {
                 sendMapToClient();
                 outputStream.writeBytes("END\n");
 
-            } else {
+            } else if (serverResponse.equalsIgnoreCase("WRONG")) {
                 System.out.println("Thread " + id + ":Wrong Move");
                 outputStream.writeBytes("MOVE\n");
                 sendMapToClient();
                 outputStream.writeBytes(server.getMovingColor().toString() + "\n");
+            } else if (serverResponse.startsWith("WIN")) {
+                System.out.println(serverResponse);
+                outputStream.writeBytes(serverResponse + "\n");
             }
             outputStream.flush();
         } catch (IOException ex) {

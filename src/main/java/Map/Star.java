@@ -124,6 +124,7 @@ public class Star extends Map {
                 if (i >= 10 && j <= i - 10) {
                     f = new Field((width / 2) - i * fieldSize / 2 + j * fieldSize, height / fieldSize + i * fieldSize, fieldSize,
                             ColorEnum.YELLOW);
+                    fieldList.remove(f);
                     fieldList.put(f, ColorEnum.BLUE);
                 }
             }
@@ -137,6 +138,7 @@ public class Star extends Map {
                 if (i >= 10 && j >= 9) {
                     f = new Field((width / 2) - i * fieldSize / 2 + j * fieldSize, height / fieldSize + i * fieldSize, fieldSize,
                             ColorEnum.PURPLE);
+                    fieldList.remove(f);
                     fieldList.put(f, ColorEnum.BLACK);
                 }
             }
@@ -151,6 +153,7 @@ public class Star extends Map {
                 if (i >= 10 && j >= 9) {
                     f = new Field(width / 2 - i * fieldSize / 2 + j * fieldSize, height / fieldSize + row, fieldSize,
                             ColorEnum.BLUE);
+                    fieldList.remove(f);
                     fieldList.put(f, ColorEnum.YELLOW);
                 }
             }
@@ -166,6 +169,7 @@ public class Star extends Map {
                 if (i >= 10 && i - j >= 10) {
                     f = new Field(width / 2 - i * fieldSize / 2 + j * fieldSize, height / fieldSize + row, fieldSize,
                             ColorEnum.BLACK);
+                    fieldList.remove(f);
                     fieldList.put(f, ColorEnum.PURPLE);
                 }
             }
